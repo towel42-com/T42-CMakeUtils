@@ -22,6 +22,7 @@
 
 cmake_minimum_required(VERSION 3.30)
 
+list( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/Modules )
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 find_package(Threads REQUIRED)
@@ -37,15 +38,13 @@ source_group("Source Files" FILES ${project_SRCS} )
 
 SET( _CMAKE_FILES "CMakeLists.txt;include.cmake" )
 source_group("CMake Files" FILES ${_CMAKE_FILES} )
-FILE(GLOB _CMAKE_MODULE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Modules/*")
+FILE(GLOB _CMAKE_MODULE_FILES "${CMAKE_CURRENT_LIST_DIR}/Modules/*")
 source_group("CMake Files\\Modules" FILES ${_CMAKE_MODULE_FILES} )
 
-if( EXISTS "${SAB_UTILS_DIR}/CompilerSettings.cmake" )
-    include( ${SAB_UTILS_DIR}/CompilerSettings.cmake )
-endif()
-
-if( EXISTS "${CMAKE_SOURCE_DIR}/SABUTILS/CompilerSettings.cmake" )
-    include( ${CMAKE_SOURCE_DIR}/SABUtils/CompilerSettings.cmake )
+if( EXISTS "${T42UTILS_DIR}/CompilerSettings.cmake" )
+    include( ${T42UTILS_DIR}/CompilerSettings.cmake )
+elseif( EXISTS "${CMAKE_CURRENT_LIST_DIR}/CompilerSettings.cmake" )
+    include( ${CMAKE_CURRENT_LIST_DIR}/CompilerSettings.cmake )
 endif()
 
 SET( _PROJECT_DEPENDENCIES
