@@ -13,7 +13,7 @@ MACRO(CreateVersion dir)
         ${ARGN}
         )
 
-    set( IN_FILE ${CMAKE_SOURCE_DIR}/SABUtils/Modules/Version.h.in )
+    set( IN_FILE ${CMAKE_SOURCE_DIR}/T42-CMakeUtils/Modules/Version.h.in )
 
     set(OUTFILE "${CMAKE_BINARY_DIR}/Version.h")
     set(TMP_OUTFILE ${OUTFILE}.tmp)
