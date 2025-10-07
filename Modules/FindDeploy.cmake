@@ -66,30 +66,46 @@ endif()
 		endif()
 
 		set( options )
-		set( oneValueArgs INSTALL_ONLY NON_INSTALL_ONLY NO_TRANSLATIONS  )
-		set( multiValueArgs EXTRA_TARGETS )
+		set( oneValueArgs INSTALL_ONLY NON_INSTALL_ONLY NO_TRANSLATIONS EXTRA_TARGETS_DIR EXTRA_TARGETS_DIR2 )
+		set( multiValueArgs EXTRA_TARGETS EXTRA_TARGETS2 )
 
 		cmake_parse_arguments( "" "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 		if ( _NO_TRANSLATIONS )
 			SET( NO_TRANSLATIONS_OPT "--no-translations")
 		endif()
 
+        #message( STATUS "EXTRA_TARGETS=${_EXTRA_TARGETS}" )
+        #message( STATUS "EXTRA_TARGETS_DIR=${_EXTRA_TARGETS_DIR}" )
+
+        #message( STATUS "EXTRA_TARGETS2=${_EXTRA_TARGETS2}" )
+        #message( STATUS "EXTRA_TARGETS_DIR2=${_EXTRA_TARGETS_DIR2}" )
 		if ( _EXTRA_TARGETS )
 			foreach(currExtraTarget ${_EXTRA_TARGETS})
 				SET( EXTRA_TARGETS_OPT ${EXTRA_TARGETS_OPT} "$<TARGET_FILE:${currExtraTarget}>")
 
-				set( targetLibs 
-					$<TARGET_FILE:${currExtraTarget}> 
-					$<TARGET_PDB_FILE:${currExtraTarget}>
-				) 
+                add_custom_command(TARGET ${target} POST_BUILD
+                    COMMAND "${CMAKE_COMMAND}" -E echo "Making Directory '$<TARGET_FILE_DIR:${target}>/${_EXTRA_TARGETS_DIR}' for '${target}'"
+                    COMMAND "${CMAKE_COMMAND}" -E make_directory \"$<TARGET_FILE_DIR:${target}>/${_EXTRA_TARGETS_DIR}\"
+                    COMMAND "${CMAKE_COMMAND}" -E echo "Linking Target Library Library '$<TARGET_FILE_NAME:${currExtraTarget}>' for '${target}'"
+                    COMMAND "${CMAKE_COMMAND}" -E create_symlink "$<TARGET_FILE:${currExtraTarget}>" \"$<TARGET_FILE_DIR:${target}>/${_EXTRA_TARGETS_DIR}/$<TARGET_FILE_NAME:${currExtraTarget}>\"
+                    COMMAND "${CMAKE_COMMAND}" -E echo "Linking Target PDB File '$<TARGET_PDB_FILE:${currExtraTarget}>' for '${target}'"
+                    COMMAND "${CMAKE_COMMAND}" -E create_symlink "$<TARGET_PDB_FILE:${currExtraTarget}>" \"$<TARGET_FILE_DIR:${target}>/${_EXTRA_TARGETS_DIR}/$<TARGET_FILE_BASE_NAME:${currExtraTarget}>.pdb\"
+                )
+			endforeach()
+		endif()
 
-				foreach(lib ${targetLibs})
-					get_filename_component(filename "${lib}" NAME)
-					add_custom_command(TARGET ${target} POST_BUILD
-						COMMAND "${CMAKE_COMMAND}" -E echo "Deploying Target Library Library '${filename}' for '${target}'"
-						COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${lib}" \"$<TARGET_FILE_DIR:${target}>\"
-					)
-				endforeach()
+		if ( _EXTRA_TARGETS2 )
+			foreach(currExtraTarget ${_EXTRA_TARGETS2})
+				SET( EXTRA_TARGETS_OPT ${EXTRA_TARGETS_OPT} "$<TARGET_FILE:${currExtraTarget}>")
+
+                add_custom_command(TARGET ${target} POST_BUILD
+                    COMMAND "${CMAKE_COMMAND}" -E echo "Making Directory '$<TARGET_FILE_DIR:${target}>/${_EXTRA_TARGETS_DIR2}' for '${target}'"
+                    COMMAND "${CMAKE_COMMAND}" -E make_directory \"$<TARGET_FILE_DIR:${target}>/${_EXTRA_TARGETS_DIR2}\"
+                    COMMAND "${CMAKE_COMMAND}" -E echo "Linking Target Library Library '$<TARGET_FILE_NAME:${currExtraTarget}>' for '${target}'"
+                    COMMAND "${CMAKE_COMMAND}" -E create_symlink "$<TARGET_FILE:${currExtraTarget}>" \"$<TARGET_FILE_DIR:${target}>/${_EXTRA_TARGETS_DIR2}/$<TARGET_FILE_NAME:${currExtraTarget}>\"
+                    COMMAND "${CMAKE_COMMAND}" -E echo "Copying Target PDB File '$<TARGET_PDB_FILE:${currExtraTarget}>' for '${target}'"
+                    COMMAND "${CMAKE_COMMAND}" -E create_symlink "$<TARGET_PDB_FILE:${currExtraTarget}>" \"$<TARGET_FILE_DIR:${target}>/${_EXTRA_TARGETS_DIR2}/$<TARGET_FILE_BASE_NAME:${currExtraTarget}>.pdb\"
+                )
 			endforeach()
 		endif()
 
