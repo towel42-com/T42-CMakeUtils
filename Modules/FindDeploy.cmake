@@ -81,6 +81,10 @@ endif()
         #message( STATUS "EXTRA_TARGETS_DIR2=${_EXTRA_TARGETS_DIR2}" )
 		if ( _EXTRA_TARGETS )
 			foreach(currExtraTarget ${_EXTRA_TARGETS})
+                if ( NOT TARGET ${currExtraTarget} )
+                    continue()
+                endif()
+                
 				SET( EXTRA_TARGETS_OPT ${EXTRA_TARGETS_OPT} "$<TARGET_FILE:${currExtraTarget}>")
 
                 add_custom_command(TARGET ${target} POST_BUILD
@@ -96,6 +100,10 @@ endif()
 
 		if ( _EXTRA_TARGETS2 )
 			foreach(currExtraTarget ${_EXTRA_TARGETS2})
+                if ( NOT TARGET ${currExtraTarget} )
+                    continue()
+                endif()
+
 				SET( EXTRA_TARGETS_OPT ${EXTRA_TARGETS_OPT} "$<TARGET_FILE:${currExtraTarget}>")
 
                 add_custom_command(TARGET ${target} POST_BUILD
