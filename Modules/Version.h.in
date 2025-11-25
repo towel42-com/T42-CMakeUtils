@@ -24,13 +24,13 @@
 #define __VERSION_H
 
 #ifdef QT_VERSION
-#include <QString>
-#include <QDateTime>
-#include <QApplication>
-#include <QTimeZone>
+    #include <QString>
+    #include <QDateTime>
+    #include <QApplication>
+    #include <QTimeZone>
 using TStringType = QString;
 #else
-#include <string>
+    #include <string>
 using TStringType = std::string;
 #endif
 
@@ -38,27 +38,31 @@ using TStringType = std::string;
 
 namespace NVersion
 {
-    inline const int         MAJOR_VERSION      =  @VERSION_FILE_MAJOR_VERSION@;
-    inline const int         MINOR_VERSION      =  @VERSION_FILE_MINOR_VERSION@;
-    inline const TStringType PATCH_VERSION      = "@VERSION_FILE_PATCH_VERSION@"; // string from git
-    inline const uint16_t    PATCH_VERSION_LOW  =  @VERSION_FILE_PATCH_VERSION_HIGH@; // string from git
-    inline const uint16_t    PATCH_VERSION_HIGH =  @VERSION_FILE_PATCH_VERSION_LOW@; // string from git
+    inline const int MAJOR_VERSION = @VERSION_FILE_MAJOR_VERSION@;
+    inline const int MINOR_VERSION = @VERSION_FILE_MINOR_VERSION@;
+    inline const TStringType PATCH_VERSION = "@VERSION_FILE_PATCH_VERSION@";   // string from git
+    inline const uint16_t PATCH_VERSION_LOW = @VERSION_FILE_PATCH_VERSION_HIGH@;   // string from git
+    inline const uint16_t PATCH_VERSION_HIGH = @VERSION_FILE_PATCH_VERSION_LOW@;   // string from git
 
-    inline const bool        MODIFIED         =  @VERSION_FILE_DIFF@;
-    inline const TStringType APP_NAME         = "@VERSION_FILE_APP_NAME@";
-    inline const TStringType VENDOR           = "@VERSION_FILE_VENDOR@";
-    inline const TStringType HOMEPAGE         = "@VERSION_FILE_HOMEPAGE@";
+    inline const bool MODIFIED = @VERSION_FILE_DIFF@;
+    inline const TStringType APP_NAME = "@VERSION_FILE_APP_NAME@";
+    inline const TStringType VENDOR = "@VERSION_FILE_VENDOR@";
+    inline const TStringType HOMEPAGE = "@VERSION_FILE_HOMEPAGE@";
     inline const TStringType PRODUCT_HOMEPAGE = "@VERSION_FILE_PRODUCT_HOMEPAGE@";
-    inline const TStringType EMAIL            = "@VERSION_FILE_EMAIL@";
-    inline const TStringType COPYRIGHT        = "@VERSION_FILE_COPYRIGHT@";
-    inline const TStringType BUILD_DATE       =  TStringType( "@VERSION_FILE_BUILD_DATE@" ) + "Z"; // IN UTC
-    inline const TStringType BUILD_TIME       =  TStringType( "@VERSION_FILE_BUILD_TIME@" ) + "Z"; // IN UTC
+    inline const TStringType EMAIL = "@VERSION_FILE_EMAIL@";
+    inline const TStringType COPYRIGHT = "@VERSION_FILE_COPYRIGHT@";
+    inline const TStringType BUILD_DATE = TStringType( "@VERSION_FILE_BUILD_DATE@" ) + "Z";   // IN UTC
+    inline const TStringType BUILD_TIME = TStringType( "@VERSION_FILE_BUILD_TIME@" ) + "Z";   // IN UTC
 
 #ifdef QT_VERSION
     inline QDateTime buildDateTime()
-    { 
-        auto retVal = QDateTime::fromString( NVersion::BUILD_DATE + " " + NVersion::BUILD_TIME, "MM/dd/yyyyZ HH:mm:ssZ" );
-        retVal.setTimeZone( QTimeZone::UTC );
+    {
+        static QDateTime retVal;
+        if ( !retVal.isValid() )
+        {
+            retVal = QDateTime::fromString( NVersion::BUILD_DATE + " " + NVersion::BUILD_TIME, "MM/dd/yyyyZ HH:mm:ssZ" );
+            retVal.setTimeZone( QTimeZone::UTC );
+        }
         return retVal;
     }
 #endif
@@ -73,7 +77,7 @@ namespace NVersion
 #endif
     }
 
-    inline bool isEmpty( const TStringType & value )
+    inline bool isEmpty( const TStringType &value )
     {
 #ifdef QT_VERSION
         return value.isEmpty();
@@ -82,8 +86,8 @@ namespace NVersion
 #endif
     }
 
-    inline TStringType getVersionString(bool full) 
-    { 
+    inline TStringType getVersionString( bool full, bool sortableDate )
+    {
         auto retVal = toString( MAJOR_VERSION ) + ".";
 #ifdef VERSION_FILE_FORCE_TWODIGITS_MINOR
         if ( MINOR_VERSION < 10 )
@@ -94,27 +98,34 @@ namespace NVersion
             retVal += "." + PATCH_VERSION;
         if ( MODIFIED )
             retVal += "*";
+#ifdef QT_VERSION
+        if ( sortableDate )
+            retVal += " Build Date: " + buildDateTime().toString( "yyyyMMdd" );
+        else
+            retVal += " Build Date: " + buildDateTime().toString( "MM/dd/yyyy" );
+#else
+        (void)sortableDate;
         if ( !isEmpty( BUILD_DATE ) )
             retVal += " Build Date: " + BUILD_DATE;
+#endif
         return retVal;
     }
 
-    inline TStringType getWindowTitle() 
-    { 
-        auto retVal = APP_NAME + " v" + getVersionString( true ) + " - http://" + HOMEPAGE;
+    inline TStringType getWindowTitle()
+    {
+        auto retVal = APP_NAME + " v" + getVersionString( true, true ) + " - http://" + HOMEPAGE;
         return retVal;
     }
 
 #ifdef QT_VERSION
-    inline void setupApplication( QCoreApplication & appl, bool useProductHomepage )
+    inline void setupApplication( QCoreApplication &appl, bool useProductHomepage )
     {
         appl.setApplicationName( APP_NAME );
-        appl.setApplicationVersion( getVersionString( true ) );
+        appl.setApplicationVersion( getVersionString( true, true ) );
         appl.setOrganizationName( VENDOR );
-        appl.setOrganizationDomain( useProductHomepage ? PRODUCT_HOMEPAGE : HOMEPAGE ); 
+        appl.setOrganizationDomain( useProductHomepage ? PRODUCT_HOMEPAGE : HOMEPAGE );
     }
 #endif
 }
 
 #endif
-
