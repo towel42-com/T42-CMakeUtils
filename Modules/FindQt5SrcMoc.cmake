@@ -22,7 +22,7 @@
 
 include(CMakeParseArguments)
 
-macro(SAB_QT5_MAKE_OUTPUT_FILE infile prefix ext outfile )
+macro(TOWEL42_QT5_MAKE_OUTPUT_FILE infile prefix ext outfile )
     string(LENGTH ${CMAKE_CURRENT_BINARY_DIR} _binlength)
     string(LENGTH ${infile} _infileLength)
     set(_checkinfile ${CMAKE_CURRENT_SOURCE_DIR})
@@ -47,7 +47,7 @@ macro(SAB_QT5_MAKE_OUTPUT_FILE infile prefix ext outfile )
     set(${outfile} ${outpath}/${prefix}${_outfile}.${ext})
 endmacro()
 
-function(SAB_qt5_generate_moc infile outfile moc_options )
+function(TOWEL42_qt5_generate_moc infile outfile moc_options )
     set(_QT5_INTERNAL_SCOPE ON)
 
     # get include dirs and flags
@@ -63,20 +63,20 @@ function(SAB_qt5_generate_moc infile outfile moc_options )
     qt5_create_moc_command(${abs_infile} ${_outfile} "${moc_flags}" "${moc_options}" "${moc_target}" "")
 endfunction()
 
-FUNCTION(SAB_WRAP_SRCMOC outfiles)
+FUNCTION(TOWEL42_WRAP_SRCMOC outfiles)
 
     set( options )
     set( multiValueArgs OPTIONS )
 
-    cmake_parse_arguments( _SAB_WRAP_SRCMOC "${options}" "" "${multiValueArgs}" ${ARGN} )
-    set( src_moc_files ${_SAB_WRAP_SRCMOC_UNPARSED_ARGUMENTS} )
-    set( moc_options ${_SAB_WRAP_SRCMOC_OPTIONS} )
+    cmake_parse_arguments( _TOWEL42_WRAP_SRCMOC "${options}" "" "${multiValueArgs}" ${ARGN} )
+    set( src_moc_files ${_TOWEL42_WRAP_SRCMOC_UNPARSED_ARGUMENTS} )
+    set( moc_options ${_TOWEL42_WRAP_SRCMOC_OPTIONS} )
 
     foreach( it ${src_moc_files} )
         get_filename_component(it ${it} ABSOLUTE)
-        sab_qt5_make_output_file( ${it} "" moc.h outfile)
+        towel42_qt5_make_output_file( ${it} "" moc.h outfile)
 
-        SAB_QT5_GENERATE_MOC( ${it} ${outfile} ${moc_options})
+        TOWEL42_QT5_GENERATE_MOC( ${it} ${outfile} ${moc_options})
         set_property(SOURCE ${outfile} PROPERTY HEADER_FILE_ONLY ON)
         list(APPEND ${outfiles} ${outfile})
     endforeach()
