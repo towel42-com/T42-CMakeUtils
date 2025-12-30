@@ -86,7 +86,7 @@ namespace NVersion
 #endif
     }
 
-    inline TStringType getVersionString( bool full, bool sortableDate )
+    inline TStringType getVersionText( bool full, bool sortableDate )
     {
         auto retVal = toString( MAJOR_VERSION ) + ".";
 #ifdef VERSION_FILE_FORCE_TWODIGITS_MINOR
@@ -113,7 +113,7 @@ namespace NVersion
 
     inline TStringType getWindowTitle()
     {
-        auto retVal = APP_NAME + " v" + getVersionString( true, true ) + " - http://" + HOMEPAGE;
+        auto retVal = APP_NAME + " v" + getVersionText( true, true ) + " - http://" + HOMEPAGE;
         return retVal;
     }
 
@@ -121,7 +121,7 @@ namespace NVersion
     inline void setupApplication( QCoreApplication &appl, bool useProductHomepage )
     {
         appl.setApplicationName( APP_NAME );
-        appl.setApplicationVersion( getVersionString( true, true ) );
+        appl.setApplicationVersion( getVersionText( true, true ) );
         appl.setOrganizationName( VENDOR );
         appl.setOrganizationDomain( useProductHomepage ? PRODUCT_HOMEPAGE : HOMEPAGE );
     }
