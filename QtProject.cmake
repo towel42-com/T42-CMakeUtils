@@ -63,7 +63,7 @@ if( EXISTS "${CMAKE_SOURCE_DIR}/T42-Utils/QtCompilerSettings.cmake" )
 endif()
 
 SET( _PROJECT_DEPENDENCIES
-	${_PROJECT_DEPENDENCIES}
+    ${_PROJECT_DEPENDENCIES}
     ${qtproject_SRCS} 
     ${qtproject_QRC} 
     ${qtproject_QRC_SRCS} 

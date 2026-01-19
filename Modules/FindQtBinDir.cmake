@@ -21,16 +21,16 @@
 # SOFTWARE.
 
 if( NOT DEFINED T42_QTBINDIR )
-	find_program(_qtpaths_exec qtpaths REQUIRED)
-	execute_process( 
-		COMMAND ${_qtpaths_exec} -qt-query QT_INSTALL_BINS
-		OUTPUT_VARIABLE _qt_bin_dir
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	if ( NOT EXISTS "${_qt_bin_dir}" )
-		MESSAGE( FATAL "Could not find Qt's Bin Dir'")
-	endif()
+    find_program(_qtpaths_exec qtpaths REQUIRED)
+    execute_process( 
+        COMMAND ${_qtpaths_exec} -qt-query QT_INSTALL_BINS
+        OUTPUT_VARIABLE _qt_bin_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if ( NOT EXISTS "${_qt_bin_dir}" )
+        MESSAGE( FATAL "Could not find Qt's Bin Dir'")
+    endif()
 
-	SET( T42_QTBINDIR ${_qt_bin_dir} CACHE PATH "The Qt Binary Directory" )
+    SET( T42_QTBINDIR ${_qt_bin_dir} CACHE PATH "The Qt Binary Directory" )
 endif()
 

@@ -2,7 +2,7 @@ SET(GIT_FOUND FALSE)
 SET(GIT_EXE_FOUND FALSE)
 
 FIND_PROGRAM(GIT_EXE_EXECUTABLE git
-	DOC "GIT command line client")
+    DOC "GIT command line client")
 MARK_AS_ADVANCED(GIT_EXE_EXECUTABLE)
 
 find_package(InstallFile REQUIRED)

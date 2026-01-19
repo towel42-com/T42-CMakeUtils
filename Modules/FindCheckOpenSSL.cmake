@@ -27,12 +27,12 @@
 
 ## Get all properties that cmake supports
 function(print_target_properties tgt)
-	execute_process(COMMAND cmake --help-property-list OUTPUT_VARIABLE __CMAKE_PROPERTY_LIST)
-	## Convert command output into a CMake list
-	STRING(REGEX REPLACE ";" "\\\\;" __CMAKE_PROPERTY_LIST "${__CMAKE_PROPERTY_LIST}")
-	STRING(REGEX REPLACE "\n" ";" __CMAKE_PROPERTY_LIST "${__CMAKE_PROPERTY_LIST}")
+    execute_process(COMMAND cmake --help-property-list OUTPUT_VARIABLE __CMAKE_PROPERTY_LIST)
+    ## Convert command output into a CMake list
+    STRING(REGEX REPLACE ";" "\\\\;" __CMAKE_PROPERTY_LIST "${__CMAKE_PROPERTY_LIST}")
+    STRING(REGEX REPLACE "\n" ";" __CMAKE_PROPERTY_LIST "${__CMAKE_PROPERTY_LIST}")
 
-	list(REMOVE_DUPLICATES __CMAKE_PROPERTY_LIST)
+    list(REMOVE_DUPLICATES __CMAKE_PROPERTY_LIST)
 
     if(NOT TARGET ${tgt})
       message("There is no target named '${tgt}'")
@@ -53,16 +53,16 @@ if ( NOT WIN32 )
 endif()
 
 function( CheckOpenSSL )
-	if ( NOT DEFINED OPENSSL_DEPLOY_LIBS )
-		if ( NOT DEFINED OPENSSL_FOUND ) 
-			if ( DEFINED OPENSSL_ROOT_DIR )
-				MESSAGE( STATUS "OPENSSL_ROOT_DIR is set, calling find_package( OpenSSL REQUIRED )" )
-				find_package( OpenSSL REQUIRED )
-			elseif ( WIN32 )
-				MESSAGE( STATUS
-					  " Neither OPENSSL_FOUND and OPENSSL_ROOT_DIR are set, checking default locations." )
+    if ( NOT DEFINED OPENSSL_DEPLOY_LIBS )
+        if ( NOT DEFINED OPENSSL_FOUND ) 
+            if ( DEFINED OPENSSL_ROOT_DIR )
+                MESSAGE( STATUS "OPENSSL_ROOT_DIR is set, calling find_package( OpenSSL REQUIRED )" )
+                find_package( OpenSSL REQUIRED )
+            elseif ( WIN32 )
+                MESSAGE( STATUS
+                      " Neither OPENSSL_FOUND and OPENSSL_ROOT_DIR are set, checking default locations." )
 
-				if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+                if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
                     SET( _PROGRAM_FILES $ENV{PROGRAMFILES}/OpenSSL-Win64 )
                     SET( _SUFFIX x64 )
                     SET( _OPENSSL_DLL libssl-1_1-x64.dll )
@@ -83,21 +83,21 @@ function( CheckOpenSSL )
                 set(CMAKE_FIND_DEBUG_MODE FALSE)
 
                 if ( DEFINED OPENSSL_ROOT_DIR )
-					MESSAGE( STATUS "Trying ${OPENSSL_ROOT_DIR}" )
-					find_package( OpenSSL REQUIRED )
-				endif()
+                    MESSAGE( STATUS "Trying ${OPENSSL_ROOT_DIR}" )
+                    find_package( OpenSSL REQUIRED )
+                endif()
 #                set(CMAKE_FIND_DEBUG_MODE FALSE)
-			endif()
-		endif()
-		
-		if ( NOT DEFINED OPENSSL_FOUND ) 
-			MESSAGE( FATAL_ERROR 
-				  "	OPENSSL_ROOT_DIR is not set.\n"
-				  " Please set OPENSSL_ROOT_DIR to the root location of your OpenSSL Installation"
-				  )
-		endif()
-		
-		MESSAGE( STATUS "OpenSSL version ${OPENSSL_VERSION} Found" )
+            endif()
+        endif()
+        
+        if ( NOT DEFINED OPENSSL_FOUND ) 
+            MESSAGE( FATAL_ERROR 
+                  "	OPENSSL_ROOT_DIR is not set.\n"
+                  " Please set OPENSSL_ROOT_DIR to the root location of your OpenSSL Installation"
+                  )
+        endif()
+        
+        MESSAGE( STATUS "OpenSSL version ${OPENSSL_VERSION} Found" )
 
         if( WIN32 )
             if ( IS_DIRECTORY ${OPENSSL_ROOT_DIR}/bin )
@@ -116,7 +116,7 @@ function( CheckOpenSSL )
             endforeach()
             MESSAGE( STATUS "OpenSSL install validated" )
         endif()
-	endif()
+    endif()
 endfunction()
 
 function(DeployOpenSSL target directory)
@@ -126,12 +126,12 @@ function(DeployOpenSSL target directory)
 
     cmake_parse_arguments( "" "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
-	if( NOT DEFINED OPENSSL_DEPLOY_LIBS )
-		MESSAGE( FATAL_ERROR "Required OpenSSL shared libraries were not found, please call CheckOpenSSL()" )
-	endif()
-	
-	#MESSAGE( STATUS "OpenSSL Found, Deploying OpenSSL Libraries for target '${target}'" )
-	#message( STATUS "OPENSSL_LIBRARIES = ${OPENSSL_LIBRARIES}" )
+    if( NOT DEFINED OPENSSL_DEPLOY_LIBS )
+        MESSAGE( FATAL_ERROR "Required OpenSSL shared libraries were not found, please call CheckOpenSSL()" )
+    endif()
+    
+    #MESSAGE( STATUS "OpenSSL Found, Deploying OpenSSL Libraries for target '${target}'" )
+    #message( STATUS "OPENSSL_LIBRARIES = ${OPENSSL_LIBRARIES}" )
     if( NOT _INSTALL_ONLY )
         foreach(lib ${OPENSSL_DEPLOY_LIBS})
             get_filename_component(filename "${lib}" NAME)
@@ -142,6 +142,6 @@ function(DeployOpenSSL target directory)
         endforeach()
     endif()
     
-	INSTALL( FILES ${OPENSSL_DEPLOY_LIBS} DESTINATION . )
+    INSTALL( FILES ${OPENSSL_DEPLOY_LIBS} DESTINATION . )
 endfunction()
 
