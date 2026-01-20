@@ -184,10 +184,4 @@ endif()
     endfunction()
 endif()
 
-function (PrintList listVar)
-    MESSAGE( STATUS "List -> ${listVar}:" )
-    foreach(curr ${${listVar}})
-        MESSAGE( STATUS "    ${curr}" )
-    endforeach()
-endfunction()
 
