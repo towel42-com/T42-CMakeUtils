@@ -99,6 +99,8 @@ namespace NVersion
             retVal += "." + PATCH_VERSION;
         if ( MODIFIED )
             retVal += "*";
+        if ( !isEmpty( AHEAD ) && !MODIFIED )
+            retVal += "*";
         retVal += AHEAD;
 #ifdef QT_VERSION
         if ( sortableDate )
