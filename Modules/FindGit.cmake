@@ -25,9 +25,10 @@ IF(GIT_EXE_EXECUTABLE)
     MACRO(GetGitInfo dir prefix)
         #sets the following variables
         # ${prefix}_REV -> The current git revision to 8 characters (32 bits)
-        # ${prefix}_REV_DIFF -> If the git repo has been modified
-        # ${prefix}_REV_TAG -> The current git tag
-        # ${prefix}_REV_BRANCH -> The current git branch
+        # ${prefix}_DIFF -> If the git repo has been modified
+        # ${prefix}_AHEAD -> If the git repois ahead of the remote server
+        # ${prefix}_TAG -> The current git tag
+        # ${prefix}_BRANCH -> The current git branch
 
         SET(_GIT_SAVED_LC_ALL "$ENV{LC_ALL}")
         SET(ENV{LC_ALL} C)
@@ -48,6 +49,7 @@ IF(GIT_EXE_EXECUTABLE)
             MESSAGE( FATAL_ERROR "Could not get GIT info on directory '${dir}'\r     '${${prefix}_ERROR}'" )
             SET(${prefix}_REV "N/A")
             SET(${prefix}_DIFF "")
+            SET(${prefix}_AHEAD "")
             SET(${prefix}_TAG "N/A")
             SET(${prefix}_BRANCH "N/A")
         else()
@@ -73,7 +75,7 @@ IF(GIT_EXE_EXECUTABLE)
                 LIST( GET ${prefix}_REV 1 ${prefix}_REV )
             ENDIF()
                       
-            execute_process(
+           execute_process(
                 COMMAND ${GIT_EXE_EXECUTABLE} -C "${dir}" 
                     describe --exact-match --tags
                     WORKING_DIRECTORY "${dir}"
@@ -90,6 +92,19 @@ IF(GIT_EXE_EXECUTABLE)
                     ERROR_QUIET
                     OUTPUT_STRIP_TRAILING_WHITESPACE
             )
+            
+            #git rev-list --count @{u}..HEAD                      
+            execute_process(
+                COMMAND ${GIT_EXE_EXECUTABLE} -C "${dir}" 
+                    rev-list --count @{u}..HEAD
+                    WORKING_DIRECTORY "${dir}"
+                    OUTPUT_VARIABLE ${prefix}_AHEAD
+                    ERROR_QUIET
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+            if( "0" STREQUAL "${${prefix}_AHEAD}" )
+                set( ${prefix}_AHEAD "" )
+            endif()
         endif()
         SET(ENV{LC_ALL} ${_GIT_SAVED_LC_ALL})
     ENDMACRO()
