@@ -25,6 +25,9 @@ cmake_minimum_required(VERSION 3.31)
 include( ${CMAKE_CURRENT_LIST_DIR}/Project.cmake )
 
 find_package(Qt6 COMPONENTS Core Widgets REQUIRED)
+if ( NOT QTDIR )
+    set(QTDIR ${_qt6Core_install_prefix} CACHE BOOL "Has QTDIR been reported" )
+endif()
 find_package(Qt6SrcMoc)
 
 SET(CMAKE_AUTOMOC OFF)
@@ -50,8 +53,6 @@ source_group("Resource Files"  FILES ${qtproject_QRC} ${qtproject_QRC_SOURCES} )
 source_group("Designer Files"  FILES ${qtproject_UIS} )
 source_group("Header Files"    FILES ${qtproject_H} )
 source_group("Source Files"    FILES ${qtproject_CPPMOC_SRCS} )
-
-source_group("Header Files"    FILES ${qtproject_H} )
 source_group("Source Files"    FILES ${qtproject_SRCS} )
 
 if( EXISTS "${TOWEL42_UTILS_DIR}/QtCompilerSettings.cmake" )
@@ -76,7 +77,6 @@ SET( _PROJECT_DEPENDENCIES
 
 SET( project_pub_DEPS
      Qt6::Core
-     Qt6::Widgets
      ${project_pub_DEPS}
      )
 
