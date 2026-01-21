@@ -37,24 +37,25 @@ endif()
 
 UNSET( DUMPCPP_EXECUTABLE CACHE )
 UNSET( DUMPCPP_VERSION CACHE )
-SET( T42_USE_SAB_CPP true )
 
 if( NOT DUMPCPP_EXECUTABLE OR NOT DUMPCPP_VERSION )
-    if( T42_USE_SAB_CPP )
-        find_program(DUMPCPP_EXECUTABLE NAMES sab_dumpcpp
-          PATHS ${CMAKE_INSTALL_PREFIX} ${CMAKE_BINARY_DIR}/dumpcpp/RelWithDebInfo ${CMAKE_BINARY_DIR}/dumpcpp/Release ${CMAKE_BINARY_DIR}/dumpcpp/Debug
-            DOC "path to the dumpcpp executable (from build area)" 
-            NO_DEFAULT_PATH
-    #        NO_CACHE
-            )
-    else()
-        find_program(DUMPCPP_EXECUTABLE NAMES dumpcpp
-          PATHS ${QT6_INSTALL_PREFIX}/bin
-            DOC "path to the dumpcpp executable (from build area)" 
-            NO_DEFAULT_PATH
-            NO_CACHE
-            )
-    endif()
+    find_program(DUMPCPP_EXECUTABLE
+        NAMES 
+            sab_dumpcpp
+        PATHS
+            ${CMAKE_INSTALL_PREFIX} ${CMAKE_BINARY_DIR}/dumpcpp/RelWithDebInfo ${CMAKE_BINARY_DIR}/dumpcpp/Release ${CMAKE_BINARY_DIR}/dumpcpp/Debug
+        DOC
+            "path to the dumpcpp executable (from build area)" 
+        NO_DEFAULT_PATH
+    )
+
+    #find_program(DUMPCPP_EXECUTABLE NAMES dumpcpp
+    #  PATHS ${QT6_INSTALL_PREFIX}/bin
+    #    DOC "path to the dumpcpp executable (from build area)" 
+    #    NO_DEFAULT_PATH
+    #    NO_CACHE
+    #)
+
     if( NOT DUMPCPP_EXECUTABLE )
         MESSAGE( WARNING "Could not find build area dumpcpp.  Re-run cmake after initial build" )
     else()
@@ -101,43 +102,39 @@ ENDMACRO()
 
 
 MACRO( GenerateCPPFromFileID fileID prefix enumPrefix )
-    if( NOT DUMPCPP_EXECUTABLE )
-        MESSAGE( FATAL_ERROR "Could not find sab_dumpcpp" )
-    endif()
+    if( DUMPCPP_EXECUTABLE )
+        if ( NOT EXISTS ${DUMPCPP_EXECUTABLE} )
+            message( FATAL_ERROR "${DUMPCPP_EXECUTABLE} does not exist" )
+        endif()
 
-    if ( NOT EXISTS ${DUMPCPP_EXECUTABLE} )
-        message( FATAL_ERROR "${DUMPCPP_EXECUTABLE} does not exist" )
-    endif()
+        FileForTypeID( ${fileID} ${prefix} )
 
-    FileForTypeID( ${fileID} ${prefix} )
+        #message( STATUS "${prefix}_TYPEID_FILEPATH=${${prefix}_TYPEID_FILEPATH}" )
+        if ( NOT EXISTS ${${prefix}_TYPEID_FILEPATH} )
+            message( FATAL_ERROR "Could not find OLB file '${${prefix}_TYPEID_FILEPATH}' for file id ${fileID}" )
+        endif()
 
-    #message( STATUS "${prefix}_TYPEID_FILEPATH=${${prefix}_TYPEID_FILEPATH}" )
-    if ( NOT EXISTS ${${prefix}_TYPEID_FILEPATH} )
-        message( FATAL_ERROR "Could not find OLB file '${${prefix}_TYPEID_FILEPATH}' for file id ${fileID}" )
-    endif()
+        set( ${prefix}_CPP ${CMAKE_CURRENT_BINARY_DIR}/${prefix}.cpp )
+        set( ${prefix}_H ${CMAKE_CURRENT_BINARY_DIR}/${prefix}.h )
 
-    set( ${prefix}_CPP ${CMAKE_CURRENT_BINARY_DIR}/${prefix}.cpp )
-    set( ${prefix}_H ${CMAKE_CURRENT_BINARY_DIR}/${prefix}.h )
+        #message( STATUS "${prefix}_CPP=${${prefix}_CPP}" )
+        #message( STATUS "${prefix}_H=${${prefix}_H}" )
+        #message( STATUS "DUMPCPP_EXECUTABLE=${DUMPCPP_EXECUTABLE} - ${DUMPCPP_VERSION}" )
 
-    #message( STATUS "${prefix}_CPP=${${prefix}_CPP}" )
-    #message( STATUS "${prefix}_H=${${prefix}_H}" )
-    #message( STATUS "DUMPCPP_EXECUTABLE=${DUMPCPP_EXECUTABLE} - ${DUMPCPP_VERSION}" )
-
-    find_program( MOC_EXEC moc.exe REQUIRED )
+        find_program( MOC_EXEC moc.exe REQUIRED )
     
-    ADD_CUSTOM_COMMAND( 
-        OUTPUT 
-            ${${prefix}_CPP} ${${prefix}_H}
-        COMMENT "[DUMPCPP] Generating ${prefix}.cpp and ${prefix}.h from '${${prefix}_TYPEID_FILEPATH}' using \"${DUMPCPP_EXECUTABLE} - ${DUMPCPP_VERSION}\" ${fileID} -o ${prefix} --enum_class --gen_tofrom_enum --prefix ${enumPrefix} --disable_clang_format"
-        COMMAND echo "${DUMPCPP_EXECUTABLE}" ${fileID} -o ${prefix} --enum_class --gen_tofrom_enum --prefix ${enumPrefix} --disable_clang_format -moc_exec "${MOC_EXEC}"
-        COMMAND "${DUMPCPP_EXECUTABLE}" ${fileID} -o ${prefix} --enum_class --gen_tofrom_enum --prefix ${enumPrefix} --disable_clang_format --moc_exec "${MOC_EXEC}"
-        VERBATIM
-        MAIN_DEPENDENCY
-            ${${prefix}_TYPEID_FILEPATH}
-        DEPENDS
-           ${${prefix}_TYPEID_FILEPATH}
-           ${DUMPCPP_EXECUTABLE}
-    )
+        ADD_CUSTOM_COMMAND( 
+            OUTPUT 
+                ${${prefix}_CPP} ${${prefix}_H}
+            COMMENT "[DUMPCPP] Generating ${prefix}.cpp and ${prefix}.h from '${${prefix}_TYPEID_FILEPATH}' using \"${DUMPCPP_EXECUTABLE} - ${DUMPCPP_VERSION}\" ${fileID} -o ${prefix} --enum_class --gen_tofrom_enum --prefix ${enumPrefix} --disable_clang_format"
+            COMMAND echo "${DUMPCPP_EXECUTABLE}" ${fileID} -o ${prefix} --enum_class --gen_tofrom_enum --prefix ${enumPrefix} --disable_clang_format -moc_exec "${MOC_EXEC}"
+            COMMAND "${DUMPCPP_EXECUTABLE}" ${fileID} -o ${prefix} --enum_class --gen_tofrom_enum --prefix ${enumPrefix} --disable_clang_format --moc_exec "${MOC_EXEC}"
+            VERBATIM
+            DEPENDS
+               ${${prefix}_TYPEID_FILEPATH}
+               ${DUMPCPP_EXECUTABLE}
+        )
+    endif()
 endmacro()
    
 
