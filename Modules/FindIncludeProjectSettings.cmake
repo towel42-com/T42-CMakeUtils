@@ -5,7 +5,12 @@ MACRO(IncludeProjectSettings)
 
     cmake_parse_arguments( _INCLUDE_PROJECT_SETTINGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
-    #MESSAGE( STATUS "" )
+    if ( "${_INCLUDE_PROJECT_SETTINGS_QT}" STREQUAL "" )
+        if( DEFINED T42_GLOBAL_USE_QT )
+            SET( _INCLUDE_PROJECT_SETTINGS_QT ${T42_GLOBAL_USE_QT} )
+        endif()
+    endif()
+    #MESSAGE( STATUS "=================" )
 
     #MESSAGE( STATUS "IncludeProjectSettings CMAKE_CURRENT_LIST_DIR=${CMAKE_CURRENT_LIST_DIR}" )
     #MESSAGE( STATUS "IncludeProjectSettings _INCLUDE_PROJECT_SETTINGS_QT=${_INCLUDE_PROJECT_SETTINGS_QT}" )
