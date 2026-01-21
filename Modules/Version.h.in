@@ -41,7 +41,7 @@ using TStringType = std::string;
 
 namespace NVersion
 {
-    TStringType fromStringLiteral( const char * text )
+    inline TStringType fromStringLiteral( const char * text )
     {
     #ifdef QT_VERSION
         return QString::fromLocal8Bit( text );
