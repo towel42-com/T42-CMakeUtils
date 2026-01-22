@@ -31,9 +31,11 @@
     #include <QDateTime>
     #include <QApplication>
     #include <QTimeZone>
+    #define TRANSLATE( str ) QObject::tr( str )
 using TStringType = QString;
 #else
     #include <string>
+    #define TRANSLATE( str ) str
 using TStringType = std::string;
 #endif
 
@@ -41,31 +43,22 @@ using TStringType = std::string;
 
 namespace NVersion
 {
-    inline TStringType fromStringLiteral( const char * text )
-    {
-    #ifdef QT_VERSION
-        return QString::fromLocal8Bit( text );
-    #else
-        return TStringType( text );
-    #endif
-    }
-
     inline const int MAJOR_VERSION = @VERSION_FILE_MAJOR_VERSION@;
     inline const int MINOR_VERSION = @VERSION_FILE_MINOR_VERSION@;
-    inline const TStringType PATCH_VERSION = fromStringLiteral( "@VERSION_FILE_PATCH_VERSION@" );   // string from git
+    inline const TStringType PATCH_VERSION = TRANSLATE( "@VERSION_FILE_PATCH_VERSION@" );   // string from git
     inline const uint16_t PATCH_VERSION_LOW = @VERSION_FILE_PATCH_VERSION_HIGH@;   // string from git
     inline const uint16_t PATCH_VERSION_HIGH = @VERSION_FILE_PATCH_VERSION_LOW@;   // string from git
 
     inline const bool MODIFIED = @VERSION_FILE_DIFF@;
-    inline const TStringType AHEAD = fromStringLiteral( "@VERSION_FILE_AHEAD@" );
-    inline const TStringType APP_NAME = fromStringLiteral( "@VERSION_FILE_APP_NAME@" );
-    inline const TStringType VENDOR = fromStringLiteral( "@VERSION_FILE_VENDOR@" );
-    inline const TStringType HOMEPAGE = fromStringLiteral( "@VERSION_FILE_HOMEPAGE@" );
-    inline const TStringType PRODUCT_HOMEPAGE = fromStringLiteral( "@VERSION_FILE_PRODUCT_HOMEPAGE@" );
-    inline const TStringType EMAIL = fromStringLiteral( "@VERSION_FILE_EMAIL@" );
-    inline const TStringType COPYRIGHT = fromStringLiteral( "@VERSION_FILE_COPYRIGHT@" );
-    inline const TStringType BUILD_DATE_UTC = fromStringLiteral( "@VERSION_FILE_BUILD_DATE@" ) + fromStringLiteral( "Z" );   // IN UTC
-    inline const TStringType BUILD_TIME_UTC = fromStringLiteral( "@VERSION_FILE_BUILD_TIME@" ) + fromStringLiteral( "Z" );   // IN UTC
+    inline const TStringType AHEAD = TRANSLATE( "@VERSION_FILE_AHEAD@" );
+    inline const TStringType APP_NAME = TRANSLATE( "@VERSION_FILE_APP_NAME@" );
+    inline const TStringType VENDOR = TRANSLATE( "@VERSION_FILE_VENDOR@" );
+    inline const TStringType HOMEPAGE = TRANSLATE( "@VERSION_FILE_HOMEPAGE@" );
+    inline const TStringType PRODUCT_HOMEPAGE = TRANSLATE( "@VERSION_FILE_PRODUCT_HOMEPAGE@" );
+    inline const TStringType EMAIL = TRANSLATE( "@VERSION_FILE_EMAIL@" );
+    inline const TStringType COPYRIGHT = TRANSLATE( "@VERSION_FILE_COPYRIGHT@" );
+    inline const TStringType BUILD_DATE_UTC = TRANSLATE( "@VERSION_FILE_BUILD_DATE@" ) + TRANSLATE( "Z" );   // IN UTC
+    inline const TStringType BUILD_TIME_UTC = TRANSLATE( "@VERSION_FILE_BUILD_TIME@" ) + TRANSLATE( "Z" );   // IN UTC
 
     template< typename T >
     TStringType toString( T value )
@@ -77,7 +70,8 @@ namespace NVersion
 #endif
     }
 
-    inline bool isEmpty( const TStringType &value )
+    template< typename T >
+    bool isEmpty( const T & value )
     {
 #ifdef QT_VERSION
         return value.isEmpty();
@@ -86,58 +80,119 @@ namespace NVersion
 #endif
     }
 
-    
-    inline TStringType buildDateTime( bool localTime, bool sortableDate )
-    {
-        TStringType retVal = fromStringLiteral( " Build Date: " );
 #ifdef QT_VERSION
+    inline QDateTime buildDateTime( bool localTime )
+    {
         static QDateTime sBuildDateTime;
         if ( !sBuildDateTime.isValid() )
         {
             sBuildDateTime = QDateTime::fromString( NVersion::BUILD_DATE_UTC + QStringLiteral( " " ) + NVersion::BUILD_TIME_UTC, QStringLiteral( "MM/dd/yyyyZ HH:mm:ssZ" ) );
             sBuildDateTime.setTimeZone( QTimeZone::UTC );
         }
-        
-        auto buildDateTime = sBuildDateTime;
-        if ( localTime )
-            buildDateTime = buildDateTime.toLocalTime();
 
+        auto retVal = sBuildDateTime;
+        if ( localTime )
+            retVal = retVal.toLocalTime();
+        return retVal;
+    }
+#endif
+
+    inline TStringType getBuildDateText( bool localTime, bool includeTZ, bool sortableDate )
+    {
+        TStringType retVal = TRANSLATE( " Build Date: " );
+#ifdef QT_VERSION
+        auto format = QLocale().dateFormat();
         if ( sortableDate )
-            retVal += buildDateTime.toString( QStringLiteral( "yyyyMMdd" ) );
-        else
-            retVal += buildDateTime.toString( QStringLiteral( "MM/dd/yyyy" ) );
+            format = QStringLiteral( "yyyyMMdd" );
+
+        if ( includeTZ )
+            format += QStringLiteral( " " ) + QLocale().timeFormat();
+
+
+        auto buildDateTime = NVersion::buildDateTime( localTime );
+        Q_ASSERT( buildDateTime.isValid() );
+        retVal += buildDateTime.toString( format );
+
+        if ( includeTZ )
+        {
+            auto abbr = buildDateTime.timeZoneAbbreviation();
+            if ( !abbr.isEmpty() )
+            {
+                auto tzString = abbr;
+                if ( abbr.startsWith( TRANSLATE( "Pacific" ), Qt::CaseInsensitive )
+                 || abbr.startsWith( TRANSLATE( "Mountain" ), Qt::CaseInsensitive )
+                 || abbr.startsWith( TRANSLATE( "Central" ), Qt::CaseInsensitive )
+                 || abbr.startsWith( TRANSLATE( "Eastern" ), Qt::CaseInsensitive ) )
+                {
+                    tzString = abbr.front().toUpper();
+                    if ( buildDateTime.isDaylightTime() )
+                        tzString += TRANSLATE( "DT" );
+                    else
+                        tzString += TRANSLATE( "ST" );
+                }
+                retVal += QStringLiteral( " " ) +  tzString;
+            }
+        }
 #else
         (void)sortableDate;
         (void)localTime;
         if ( !isEmpty( BUILD_DATE_UTC ) )
+        {
             retVal += BUILD_DATE_UTC;
+            if ( !isEmpty( TIME_DATE_UTC )
+                retVal +=  BUILD_TIME_UTC;
+        }
+        else
+            retVal += "<UNKNOWN>";
 #endif
         return retVal;
     }
 
-    inline TStringType getVersionText( bool localTime, bool full, bool sortableDate )
+    inline TStringType getVersionText( bool full )
     {
-        auto retVal = toString( MAJOR_VERSION ) + fromStringLiteral( "." );
+        auto retVal = toString( MAJOR_VERSION ) + TRANSLATE( "." );
 #ifdef VERSION_FILE_FORCE_TWODIGITS_MINOR
         if ( MINOR_VERSION < 10 )
             retVal += '0';
 #endif
         retVal += toString( MINOR_VERSION );
         if ( full )
-            retVal += fromStringLiteral( "." ) + PATCH_VERSION;
+            retVal += TRANSLATE( "." ) + PATCH_VERSION;
         if ( MODIFIED )
-            retVal += fromStringLiteral( "*" );
+            retVal += TRANSLATE( "*" );
         if ( !isEmpty( AHEAD ) && !MODIFIED )
-            retVal += fromStringLiteral( "*" );
+            retVal += TRANSLATE( "*" );
         retVal += AHEAD;
-
-        retVal += fromStringLiteral( " " ) + NVersion::buildDateTime( localTime, sortableDate );
         return retVal;
     }
 
-    inline TStringType getWindowTitle()
+    inline TStringType getVersionTextEX( bool localTime, bool full, bool sortableDate )
     {
-        auto retVal = APP_NAME + fromStringLiteral( " v" )+ getVersionText( true, true, true ) + fromStringLiteral( " - http://" ) + HOMEPAGE;
+        auto retVal = getVersionText( full );
+        if ( full )
+        {
+            auto dateString = getBuildDateText( localTime, full, sortableDate );
+            if ( !isEmpty( dateString ) )
+                retVal += QStringLiteral( " - " );
+            retVal += dateString;
+        }
+
+        retVal += TRANSLATE( " " ) + getBuildDateText( localTime, full, sortableDate );
+        return retVal;
+    }
+
+    inline TStringType getWindowTitle( bool verbose=true, bool homePage=true )
+    {
+        auto retVal = APP_NAME;
+        if ( verbose )
+        {
+            retVal += TRANSLATE( " -" );
+        }
+        retVal += TRANSLATE( " v" )+ getVersionTextEX( true, true, false );
+        if ( verbose && homePage )
+        {
+            retVal += TRANSLATE( " - https://" ) + HOMEPAGE;
+        }
         return retVal;
     }
 
@@ -145,7 +200,7 @@ namespace NVersion
     inline void setupApplication( QCoreApplication &appl, bool useProductHomepage )
     {
         appl.setApplicationName( APP_NAME );
-        appl.setApplicationVersion( getVersionText( false, true, true ) );
+        appl.setApplicationVersion( getVersionTextEX( false, true, false ) );
         appl.setOrganizationName( VENDOR );
         appl.setOrganizationDomain( useProductHomepage ? PRODUCT_HOMEPAGE : HOMEPAGE );
     }
