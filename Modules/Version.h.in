@@ -86,7 +86,8 @@ namespace NVersion
         static QDateTime sBuildDateTime;
         if ( !sBuildDateTime.isValid() )
         {
-            sBuildDateTime = QDateTime::fromString( NVersion::BUILD_DATE_UTC + QStringLiteral( " " ) + NVersion::BUILD_TIME_UTC, QStringLiteral( "MM/dd/yyyyZ HH:mm:ssZ" ) );
+            sBuildDateTime = QDateTime::fromString( NVersion::BUILD_DATE_UTC + QStringLiteral( " " ) + NVersion::BUILD_TIME_UTC, QStringLiteral( "MM/dd/yyyyZ HH:mm:ssUTCZ" ) );
+            Q_ASSERT( sBuildDateTime.isValid() );
             sBuildDateTime.setTimeZone( QTimeZone::UTC );
         }
 
@@ -110,7 +111,6 @@ namespace NVersion
 
 
         auto buildDateTime = NVersion::buildDateTime( localTime );
-        Q_ASSERT( buildDateTime.isValid() );
         retVal += buildDateTime.toString( format );
 
         if ( includeTZ )
@@ -177,7 +177,6 @@ namespace NVersion
             retVal += dateString;
         }
 
-        retVal += TRANSLATE( " " ) + getBuildDateText( localTime, full, sortableDate );
         return retVal;
     }
 
