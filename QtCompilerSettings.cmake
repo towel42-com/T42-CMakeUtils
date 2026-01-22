@@ -39,5 +39,6 @@ add_compile_definitions(
     QT_STRICT_ITERATORS 
     QT_CC_WARNINGS 
     QT_NO_WARNINGS
+    QT_RESTRICTED_CAST_FROM_ASCII
 )
 
