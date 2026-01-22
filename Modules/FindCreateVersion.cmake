@@ -1,6 +1,6 @@
 find_package(InstallFile REQUIRED)
 
-MACRO(CreateVersion dir)
+FUNCTION(CreateVersion dir)
 
     set( options )
     set( oneValueArgs MAJOR MINOR PATCH DIFF AHEAD TEMPLATE APP_NAME VENDOR HOMEPAGE PRODUCT_HOMEPAGE EMAIL BUILD_DATE BUILD_TIME COPYRIGHT START_YEAR)
@@ -89,4 +89,4 @@ MACRO(CreateVersion dir)
         ${OUTFILE}
         )
 
-ENDMACRO()
+ENDFUNCTION()
