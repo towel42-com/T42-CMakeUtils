@@ -66,7 +66,7 @@ FUNCTION(InstallFilePostBuild)
     ENDIF()
     
     SET( _CALL_FUNC_CMD
-        ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/T42-Utils/Modules/InstallFile.cmake
+        ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_FUNCTION_LIST_FILE}
         --
         ${_INFILE}
         ${_TARGET_DIR}
