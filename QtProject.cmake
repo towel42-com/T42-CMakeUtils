@@ -55,12 +55,8 @@ source_group("Header Files"    FILES ${qtproject_H} )
 source_group("Source Files"    FILES ${qtproject_CPPMOC_SRCS} )
 source_group("Source Files"    FILES ${qtproject_SRCS} )
 
-if( EXISTS "${TOWEL42_UTILS_DIR}/QtCompilerSettings.cmake" )
-    include( ${TOWEL42_UTILS_DIR}/QtCompilerSettings.cmake )
-endif()
-
-if( EXISTS "${CMAKE_SOURCE_DIR}/T42-Utils/QtCompilerSettings.cmake" )
-    include( ${CMAKE_SOURCE_DIR}/T42-Utils/QtCompilerSettings.cmake )
+if( EXISTS "${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake" )
+    include( ${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake )
 endif()
 
 SET( _PROJECT_DEPENDENCIES
