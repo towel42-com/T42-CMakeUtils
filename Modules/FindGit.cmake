@@ -7,20 +7,29 @@ MARK_AS_ADVANCED(GIT_EXE_EXECUTABLE)
 
 find_package(InstallFile REQUIRED)
 
+MACRO(CheckGITExec)
+    IF( ( NOT GIT_FOUND ) OR ( NOT EXISTS ${GIT_EXE_EXECUTABLE} ) )
+      IF(GIT_FIND_REQUIRED)
+            MESSAGE(FATAL_ERROR "GIT executable was not found.")
+      ELSEIF(NOT GIT_FIND_QUIETLY)
+            MESSAGE(WARNING "GIT executable was not found.")
+      ENDIF()
+    ENDIF()
+ENDMACRO()    
+
 IF(GIT_EXE_EXECUTABLE)
     SET(GIT_EXE_FOUND TRUE)
     SET(GIT_FOUND TRUE)
 
     IF( NOT EXISTS "${GIT_EXE_EXECUTABLE}" )
-        MESSAGE( "GIT Does not exist: '${GIT_EXE_EXECTUABLE}'" )
         UNSET( GIT_EXE_EXECUTABLE CACHE )
         UNSET( GIT_EXE_FOUND CACHE )
         UNSET( GIT_FOUND CACHE )
         UNSET( GIT_EXE_EXECUTABLE )
         UNSET( GIT_EXE_FOUND )
         UNSET( GIT_FOUND )
-        MESSAGE( FATAL_ERROR "GIT Does not exist" )
     ENDIF()
+    CheckGITExec()
 
     MACRO(GetGitInfo dir prefix)
         #sets the following variables
@@ -33,12 +42,12 @@ IF(GIT_EXE_EXECUTABLE)
         SET(_GIT_SAVED_LC_ALL "$ENV{LC_ALL}")
         SET(ENV{LC_ALL} C)
 
-        MESSAGE( STATUS "Using GIT: '${GIT_EXE_EXECUTABLE}'" )
-        MESSAGE( STATUS "Getting GIT info on '${dir}'" )
+        #MESSAGE( STATUS "Using GIT: '${GIT_EXE_EXECUTABLE}'" )
+        #MESSAGE( STATUS "Getting GIT info on '${dir}'" )
         EXECUTE_PROCESS(
             COMMAND 
                 ${GIT_EXE_EXECUTABLE} -C "${dir}" 
-                    describe --abbrev=8 "--dirty=;TRUE" --always
+                    describe --abbrev=8 --exclude \* "--dirty=;TRUE" --always
                     OUTPUT_VARIABLE _FULL_GIT_VERSION 
                     ERROR_VARIABLE ${prefix}_ERROR
                     OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -108,16 +117,61 @@ IF(GIT_EXE_EXECUTABLE)
         endif()
         SET(ENV{LC_ALL} ${_GIT_SAVED_LC_ALL})
     ENDMACRO()
-ENDIF(GIT_EXE_EXECUTABLE)
 
-IF(NOT GIT_FOUND)
-  IF(NOT GIT_FIND_QUIETLY)
-    MESSAGE(STATUS "GIT executable was not found.")
-  ELSE(NOT GIT_FIND_QUIETLY)
-    IF(GIT_FIND_REQUIRED)
-      MESSAGE(FATAL_ERROR "GIT executable was not found.")
-    ENDIF(GIT_FIND_REQUIRED)
-  ENDIF(NOT GIT_FIND_QUIETLY)
-ENDIF(NOT GIT_FOUND)
+    MACRO(CreateTagAndPackageTarget MAJOR MINOR )
+        STRING(TIMESTAMP _CURRDATE "%d%m%Y_%H%M" UTC)
+        SET( _TAGNAME ${MAJOR}.${MINOR}_${_CURRDATE} )
+        #message( STATUS "MAJOR=${MAJOR}" )
+        #message( STATUS "MINOR=${MINOR}" )
+        #message( STATUS "_CURRDATE=${_CURRDATE}" )
+        #message( STATUS "_TAGNAME=${_TAGNAME}" )
+        # message( STATUS "${GIT_EXE_EXECUTABLE} tag -a v${_TAGNAME} -m 'Release ${_TAGNAME}'" )
 
-# FindGIT.cmake ends here.
+        string( APPEND _ECHO1
+            "$<IF:$<CONFIG:RelWithDebInfo>,"
+                "${CMAKE_COMMAND};-E;echo;Creating Tag v${_TAGNAME},"
+                "${CMAKE_COMMAND};-E;echo;****** Skipping in non-RelWithDebInfo Config ******"               
+            ">"
+            ) 
+
+        string( APPEND _TAGIT
+            "$<IF:$<CONFIG:RelWithDebInfo>,"
+                "${GIT_EXE_EXECUTABLE};tag;-a;v${_TAGNAME};-m;\"Release ${_TAGNAME}\","
+                "${CMAKE_COMMAND};-E;echo_append"               
+            ">"
+            ) 
+
+        string( APPEND _ECHO2
+            "$<IF:$<CONFIG:RelWithDebInfo>,"
+                "${CMAKE_COMMAND};-E;echo;Running CPack -C $<CONFIG> --config ./CPackConfig.cmake,"
+                "${CMAKE_COMMAND};-E;echo_append"               
+            ">"
+            ) 
+        string( APPEND _RUNCPACK
+            "$<IF:$<CONFIG:RelWithDebInfo>,"
+                "${CMAKE_CPACK_COMMAND};-C;$<CONFIG>;--config;./CPackConfig.cmake,"
+                "${CMAKE_COMMAND};-E;echo_append"               
+            ">"
+            ) 
+            
+        #message( STATUS    _ECHO1=${_ECHO1} )
+        #message( STATUS    _TAGIT=${_TAGIT} )
+        #message( STATUS    _ECHO2=${_ECHO2} )
+        #message( STATUS _RUNCPACK=${_RUNCPACK} )
+        add_custom_target(
+          TAG_AND_PACKAGE
+          COMMAND "${_ECHO1}"
+          COMMAND "${_TAGIT}"
+          COMMAND "${_ECHO2}"
+          COMMAND "${_RUNCPACK}"
+          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+          DEPENDS PACKAGE
+          COMMAND_EXPAND_LISTS
+        )
+        set_target_properties( TAG_AND_PACKAGE PROPERTIES FOLDER CMakePredefinedTargets )
+    ENDMACRO()
+
+ENDIF()
+
+CheckGITExec()
+
