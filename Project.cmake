@@ -27,6 +27,10 @@ if ( "${T42_CXX_STANDARD}" STREQUAL "" )
     SET( T42_CXX_STANDARD 17 )
 endif()
 
+if( NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/CompilerSettings.cmake" )
+    message( FATAL_ERROR "Could not find '${CMAKE_CURRENT_LIST_DIR}/CompilerSettings.cmake'" )
+endif()
+
 set(CMAKE_CXX_STANDARD ${T42_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 find_package(Threads REQUIRED)
@@ -40,16 +44,10 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 source_group("Header Files" FILES ${project_H} )
 source_group("Source Files" FILES ${project_SRCS} )
 
-SET( _CMAKE_FILES CMakeLists.txt include.cmake ${EXTRA_CMAKE_FILES} )
+SET( _CMAKE_FILES CMakeLists.txt include.cmake ${EXTRA_CMAKE_FILES})
 source_group("CMake Files" FILES ${_CMAKE_FILES} )
-FILE(GLOB _CMAKE_MODULE_FILES "${CMAKE_CURRENT_LIST_DIR}/Modules/*")
-source_group("CMake Files\\Modules" FILES ${_CMAKE_MODULE_FILES} )
 
-if( EXISTS "${T42UTILS_DIR}/CompilerSettings.cmake" )
-    include( ${T42UTILS_DIR}/CompilerSettings.cmake )
-elseif( EXISTS "${CMAKE_CURRENT_LIST_DIR}/CompilerSettings.cmake" )
-    include( ${CMAKE_CURRENT_LIST_DIR}/CompilerSettings.cmake )
-endif()
+include( ${CMAKE_CURRENT_LIST_DIR}/CompilerSettings.cmake )
 
 SET( _PROJECT_DEPENDENCIES
     ${project_SRCS} 
@@ -57,10 +55,11 @@ SET( _PROJECT_DEPENDENCIES
     ${_CMAKE_FILES}
     ${_CMAKE_MODULE_FILES}
 )
+unset( _CMAKE_FILES )
 
 SET( project_pub_DEPS
     # insert and "global default" public depends here
-     ${project_pub_DEPS}
+    ${project_pub_DEPS}
 )
 
 SET( project_pri_DEPS
