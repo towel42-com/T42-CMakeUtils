@@ -22,12 +22,16 @@
 
 cmake_minimum_required(VERSION 3.31)
 
+if( NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/Project.cmake" )
+    message( FATAL_ERROR "Could not find '${CMAKE_CURRENT_LIST_DIR}/Project.cmake'" )
+endif()
+if( NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake" )
+    message( FATAL_ERROR "Could not find '${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake'" )
+endif()
+
 include( ${CMAKE_CURRENT_LIST_DIR}/Project.cmake )
 
 find_package(Qt6 COMPONENTS Core Widgets REQUIRED)
-if ( NOT QTDIR )
-    set(QTDIR ${_qt6Core_install_prefix} CACHE BOOL "Has QTDIR been reported" )
-endif()
 find_package(Qt6SrcMoc)
 
 SET(CMAKE_AUTOMOC OFF)
@@ -55,9 +59,7 @@ source_group("Header Files"    FILES ${qtproject_H} )
 source_group("Source Files"    FILES ${qtproject_CPPMOC_SRCS} )
 source_group("Source Files"    FILES ${qtproject_SRCS} )
 
-if( EXISTS "${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake" )
-    include( ${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake )
-endif()
+include( ${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake )
 
 SET( _PROJECT_DEPENDENCIES
     ${_PROJECT_DEPENDENCIES}
