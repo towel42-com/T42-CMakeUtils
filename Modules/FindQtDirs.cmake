@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-if( NOT DEFINED T42_QTBINDIR )
+FUNCTION( FindQtBinDir OUTPUT_VAR )
     find_program(_qtpaths_exec qtpaths REQUIRED)
     execute_process( 
         COMMAND ${_qtpaths_exec} -qt-query QT_INSTALL_BINS
@@ -28,9 +28,10 @@ if( NOT DEFINED T42_QTBINDIR )
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
     if ( NOT EXISTS "${_qt_bin_dir}" )
-        MESSAGE( FATAL "Could not find Qt's Bin Dir'")
+        MESSAGE( FATAL_ERROR "Reporting Qt Binary Directory '${_qt_bin_dir}' does not exist'")
     endif()
 
-    SET( T42_QTBINDIR ${_qt_bin_dir} CACHE PATH "The Qt Binary Directory" )
+    SET( ${OUTPUT_VAR} ${_qt_bin_dir})
+    SET( ${OUTPUT_VAR} ${_qt_bin_dir} PARENT_SCOPE)
 endif()
 
