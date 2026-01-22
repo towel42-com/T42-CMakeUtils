@@ -3,7 +3,7 @@ find_package(InstallFile REQUIRED)
 MACRO(CreateVersion dir)
 
     set( options )
-    set( oneValueArgs MAJOR MINOR PATCH DIFF AHEAD APP_NAME VENDOR HOMEPAGE PRODUCT_HOMEPAGE EMAIL BUILD_DATE BUILD_TIME COPYRIGHT)
+    set( oneValueArgs MAJOR MINOR PATCH DIFF AHEAD TEMPLATE APP_NAME VENDOR HOMEPAGE PRODUCT_HOMEPAGE EMAIL BUILD_DATE BUILD_TIME COPYRIGHT START_YEAR)
     set( multiValueArgs )
     cmake_parse_arguments(
         _CREATE_VERSION
@@ -13,17 +13,50 @@ MACRO(CreateVersion dir)
         ${ARGN}
         )
 
-    set( IN_FILE ${CMAKE_SOURCE_DIR}/T42-CMakeUtils/Modules/Version.h.in )
-
     set(OUTFILE "${CMAKE_BINARY_DIR}/Version.h")
     set(TMP_OUTFILE ${OUTFILE}.tmp)
     
+    #MESSAGE( STATUS "=================" )
+    #foreach( CURR IN LISTS oneValueArgs)
+    #    MESSAGE( STATUS "_CREATE_VERSION_${CURR}=${_CREATE_VERSION_${CURR}}" )
+    #endforeach()
+    #MESSAGE( STATUS "=================" )
+    
+    if ( "${START_YEAR}" STREQUAL "" )
+        STRING(TIMESTAMP START_YEAR "%Y")
+    endif()
+    
+    STRING(TIMESTAMP CURR_YEAR "%Y")
+    if ( ${START_YEAR} STREQUAL ${CURR_YEAR} )
+        SET( COPYRIGHT_YEARS "${START_YEAR}"  )
+    else()
+        SET( COPYRIGHT_YEARS "${START_YEAR}-${CURR_YEAR}" )
+    endif()
+    
+    STRING(REPLACE "<COPYRIGHT_YEARS>" ${COPYRIGHT_YEARS} _CREATE_VERSION_COPYRIGHT ${_CREATE_VERSION_COPYRIGHT})
+    #MESSAGE( STATUS "=================" )
+    #foreach( CURR IN LISTS oneValueArgs)
+    #    MESSAGE( STATUS "_CREATE_VERSION_${CURR}=${_CREATE_VERSION_${CURR}}" )
+    #endforeach()
+    #MESSAGE( STATUS "=================" )
+
     #message( STATUS "_CREATE_VERSION_MAJOR=${_CREATE_VERSION_MAJOR}" )
     #message( STATUS "_CREATE_VERSION_MINOR=${_CREATE_VERSION_MINOR}" )
     #message( STATUS "_CREATE_VERSION_PATCH=${_CREATE_VERSION_PATCH}" )
     #message( STATUS "_CREATE_VERSION_DIFF=${_CREATE_VERSION_DIFF}" )
     #message( STATUS "_CREATE_VERSION_AHEAD=${_CREATE_VERSION_AHEAD}" )
-    #message( STATUS "Generating version file '${OUTFILE}'" )
+    #message( STATUS "_CREATE_VERSION_TEMPLATE=${_CREATE_VERSION_TEMPLATE}" )
+    
+    message( STATUS "Generating version file '${OUTFILE}'" )
+
+    if ( ( NOT _CREATE_VERSION_TEMPLATE ) OR ( "${_CREATE_VERSION_TEMPLATE}" STREQUAL "" ) )
+        SET( _CREATE_VERSION_TEMPLATE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/Version.h.in )
+    endif()
+    set( TEMPLATE_FILE ${_CREATE_VERSION_TEMPLATE} )
+    
+    if ( NOT EXISTS ${TEMPLATE_FILE} )
+        MESSAGE( FATAL_ERROR "Could not find Version Template file '${TEMPLATE_FILE}'" )
+    endif()
     
     set(VERSION_FILE_MAJOR_VERSION ${_CREATE_VERSION_MAJOR})
     set(VERSION_FILE_MINOR_VERSION ${_CREATE_VERSION_MINOR})
@@ -39,14 +72,16 @@ MACRO(CreateVersion dir)
     set(VERSION_FILE_EMAIL         ${_CREATE_VERSION_EMAIL})
     set(VERSION_FILE_BUILD_DATE    ${_CREATE_VERSION_BUILD_DATE})
     set(VERSION_FILE_BUILD_TIME    ${_CREATE_VERSION_BUILD_TIME})
-    set(VERSION_FILE_COPYRIGHT    ${_CREATE_VERSION_COPYRIGHT})
+    set(VERSION_FILE_COPYRIGHT     ${_CREATE_VERSION_COPYRIGHT})
+    set(VERSION_FILE_START_YEAR    ${_CREATE_VERSION_START_YEAR})
 
     configure_file(
-        "${IN_FILE}"
+        "${TEMPLATE_FILE}"
         "${TMP_OUTFILE}"
     )
 
     InstallFile( ${TMP_OUTFILE} ${OUTFILE} REMOVE_ORIG ) # creates a dependency on TMP_OUTFILE
+
     set_property( 
         DIRECTORY ${dir} 
         APPEND
