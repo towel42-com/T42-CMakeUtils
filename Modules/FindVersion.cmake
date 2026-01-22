@@ -58,7 +58,7 @@ FUNCTION( GetVersionInfo FILENAME VAR )
         MAIN_DEPENDENCY
             ${FILENAME}
         COMMAND
-            "${CMAKE_COMMAND}" -E touch ${CMAKE_SOURCE_DIR}/CMakeLists.txt
+            "${CMAKE_COMMAND}" -E touch ${CMAKE_CURRENT_FUNCTION_LIST_FILE}
         COMMENT
             "Re-running CMake since Version.h has been modified"
     )
