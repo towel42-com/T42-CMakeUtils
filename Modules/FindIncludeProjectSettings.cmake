@@ -1,9 +1,21 @@
+FUNCTION( BASE_PROJECT_DIR VAR )
+    set( ${VAR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR} PARENT_SCOPE )
+ENDFUNCTION()
+
+find_package( T42Utils )
+
 MACRO(IncludeProjectSettings)
+    #PrintAllVariables()
+    
     set( options  )
     set( oneValueArgs QT )
     set( multiValueArgs )
 
     cmake_parse_arguments( _INCLUDE_PROJECT_SETTINGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+
+    unset( options  )
+    unset( oneValueArgs )
+    unset( multiValueArgs )
 
     if ( "${_INCLUDE_PROJECT_SETTINGS_QT}" STREQUAL "" )
         if( DEFINED T42_GLOBAL_USE_QT )
@@ -24,6 +36,7 @@ MACRO(IncludeProjectSettings)
         SET( _PROJECT_BASE_FILE "Project.cmake" )
     endif()
 
+    unset( _INCLUDE_PROJECT_SETTINGS_QT )
     while( NOT ${CURR_DIR} STREQUAL ${STOP_DIR} )
         #MESSAGE( STATUS "Checking ${CURR_DIR} for ${_PROJECT_BASE_FILE}" )
 
@@ -39,8 +52,9 @@ MACRO(IncludeProjectSettings)
     UNSET( STOP_DIR )
     
     if ( NOT EXISTS "${_PROJECT_FILE}" )
-        SET( _PROJECT_FILE "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../${_PROJECT_BASE_FILE}" )
-        
+        BASE_PROJECT_DIR( _BASE_PROJECT_DIR )
+        SET( _PROJECT_FILE "${_BASE_PROJECT_DIR}/../${_PROJECT_BASE_FILE}" )
+        UNSET( _BASE_PROJECT_DIR )
         #MESSAGE( STATUS "Checking ${_PROJECT_FILE}" )
         if ( EXISTS "${_PROJECT_FILE}" )
             #MESSAGE( STATUS "Found ${_PROJECT_FILE}" )
@@ -48,6 +62,7 @@ MACRO(IncludeProjectSettings)
         endif()
     endif()
         
+    #MESSAGE( STATUS "Checking ${_PROJECT_FILE}" )
     if ( NOT EXISTS "${_PROJECT_FILE}" )
         MESSAGE( FATAL_ERROR "No ${_PROJECT_BASE_FILE} file found" )
     endif()
@@ -56,4 +71,5 @@ MACRO(IncludeProjectSettings)
     include( "${_PROJECT_FILE}" )
     UNSET( _PROJECT_BASE_FILE )
     UNSET( _PROJECT_FILE )
+    #PrintAllVariables()
 ENDMACRO()
