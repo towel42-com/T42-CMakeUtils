@@ -173,7 +173,7 @@ namespace NVersion
         {
             auto dateString = getBuildDateText( localTime, full, sortableDate );
             if ( !isEmpty( dateString ) )
-                retVal += QStringLiteral( " - " );
+                retVal += TRANSLATE( " - " );
             retVal += dateString;
         }
 
