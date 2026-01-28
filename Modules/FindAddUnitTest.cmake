@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-if( Qt6_FOUND )
+if( TOWEL42_QCORE_SUPPORT AND Qt6_FOUND )
     FIND_PACKAGE( Deploy COMPONENTS REQUIRED)
 endif()
 
@@ -88,7 +88,7 @@ FUNCTION(TOWEL42_UNIT_TEST_RESOURCE name)
         cmake_policy(SET CMP0020 NEW)
     endif()
 
-    if( Qt6_FOUND )
+    if( TOWEL42_QCORE_SUPPORT AND Qt6_FOUND )
        QT6_ADD_RESOURCES( qt_project_QRC_SRCS ${ARGN} )
        add_library(${RESOURCE_LIB_NAME} STATIC ${qt_project_QRC_SRCS})
     endif()
@@ -138,8 +138,8 @@ FUNCTION(TOWEL42_UNIT_TEST name file libs tgtNameVar )
     SET( FOLDER_NAME "UnitTests/${FOLDER_NAME}" )
     #MESSAGE( "FOLDER_NAME=${FOLDER_NAME}" )
     set_target_properties( ${TEST_NAME} PROPERTIES FOLDER ${FOLDER_NAME})
-    if ( Qt6_FOUND )
-        SET (NEWPATH "${CMAKE_BINARY_DIR}/tcl/src/Debug;${CMAKE_BINARY_DIR}/tcl/src/RelWithDebInfo;${QTDIR}/bin;${OPENSSL_ROOT_DIR};$ENV{PATH}" )
+    if ( TOWEL42_QCORE_SUPPORT AND Qt6_FOUND )
+        SET (NEWPATH "${CMAKE_BINARY_DIR}/tcl/src/Debug;${CMAKE_BINARY_DIR}/tcl/src/RelWithDebInfo;${QT6_INSTALL_PREFIX}/bin;${OPENSSL_ROOT_DIR};$ENV{PATH}" )
     else()
         SET (NEWPATH "${CMAKE_BINARY_DIR}/tcl/src/Debug;${CMAKE_BINARY_DIR}/tcl/src/RelWithDebInfo;${OPENSSL_ROOT_DIR};$ENV{PATH}" )
     endif()
@@ -147,7 +147,7 @@ FUNCTION(TOWEL42_UNIT_TEST name file libs tgtNameVar )
     SET_TESTS_PROPERTIES( ${TEST_NAME} PROPERTIES ENVIRONMENT "PATH=${NEWPATH}" )
 
     #MESSAGE( STATUS "${libs}" )
-    if ( Qt6_FOUND )
+    if ( TOWEL42_QCORE_SUPPORT AND Qt6_FOUND )
         STRING(FIND "${libs}" "Qt6::" pos1)
         STRING(FIND "${libs}" "Qt::" pos2)
 

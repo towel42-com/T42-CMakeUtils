@@ -7,36 +7,20 @@ find_package( T42Utils )
 MACRO(IncludeProjectSettings)
     #PrintAllVariables()
     
-    set( options  )
-    set( oneValueArgs QT )
-    set( multiValueArgs )
-
-    cmake_parse_arguments( _INCLUDE_PROJECT_SETTINGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
-
-    unset( options  )
-    unset( oneValueArgs )
-    unset( multiValueArgs )
-
-    if ( "${_INCLUDE_PROJECT_SETTINGS_QT}" STREQUAL "" )
-        if( DEFINED T42_GLOBAL_USE_QT )
-            SET( _INCLUDE_PROJECT_SETTINGS_QT ${T42_GLOBAL_USE_QT} )
-        endif()
-    endif()
     #MESSAGE( STATUS "IncludeProjectSettings CMAKE_CURRENT_LIST_DIR=${CMAKE_CURRENT_LIST_DIR}" )
-    #MESSAGE( STATUS "IncludeProjectSettings _INCLUDE_PROJECT_SETTINGS_QT=${_INCLUDE_PROJECT_SETTINGS_QT}" )
 
     SET( CURR_DIR ${CMAKE_CURRENT_LIST_DIR} )
     get_filename_component(STOP_DIR ${CMAKE_SOURCE_DIR} DIRECTORY)
     #MESSAGE( STATUS "CURR_DIR=${CURR_DIR}" )
     #MESSAGE( STATUS "STOP_DIR=${STOP_DIR}" )
 
-    if ( _INCLUDE_PROJECT_SETTINGS_QT )
+    if ( TOWEL42_QCORE_SUPPORT )
         SET( _PROJECT_BASE_FILE "QtProject.cmake" )
     else()
         SET( _PROJECT_BASE_FILE "Project.cmake" )
     endif()
 
-    unset( _INCLUDE_PROJECT_SETTINGS_QT )
+    unset( TOWEL42_QCORE_SUPPORTU )
     while( NOT ${CURR_DIR} STREQUAL ${STOP_DIR} )
         #MESSAGE( STATUS "Checking ${CURR_DIR} for ${_PROJECT_BASE_FILE}" )
 

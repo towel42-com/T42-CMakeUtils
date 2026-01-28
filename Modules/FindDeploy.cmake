@@ -23,7 +23,7 @@
 
 find_package(DeploySystem REQUIRED)
 
-if( NOT DEFINED USE_QT OR USE_QT )
+if( TOWEL42_QCORE_SUPPORT )
     find_package(Qt6Core REQUIRED)
 
     if( NOT DEFINED DEPLOYQT_EXECUTABLE )
@@ -50,9 +50,8 @@ if( NOT DEFINED USE_QT OR USE_QT )
         if( (MSVC_VERSION VERSION_EQUAL 1900 OR MSVC_VERSION VERSION_GREATER 1900) AND CMAKE_VERSION VERSION_LESS "3.6")
             message(WARNING "Deploying with MSVC 2015+ requires CMake 3.6+")
         endif()
-    mark_as_advanced(DEPLOYQT_EXECUTABLE)
-endif()
-
+        mark_as_advanced(DEPLOYQT_EXECUTABLE)
+    endif()
 
     # Add commands that copy the required Qt files to the same directory as the
     # target after being built as well as including them in final installation
@@ -183,5 +182,4 @@ endif()
         endif()
     endfunction()
 endif()
-
 
