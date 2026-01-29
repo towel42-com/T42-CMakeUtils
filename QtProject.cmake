@@ -30,6 +30,7 @@ if( NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake" )
 endif()
 
 include( ${CMAKE_CURRENT_LIST_DIR}/Project.cmake )
+add_definitions( -DTOWEL42_QCORE_SUPPORT )
 
 find_package(Qt6 COMPONENTS Core Widgets REQUIRED)
 find_package(Qt6SrcMoc)
