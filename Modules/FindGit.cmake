@@ -48,13 +48,15 @@ IF(GIT_EXE_EXECUTABLE)
             COMMAND 
                 ${GIT_EXE_EXECUTABLE} -C "${dir}" 
                     describe --abbrev=8 --exclude \* "--dirty=;TRUE" --always
-                    OUTPUT_VARIABLE _FULL_GIT_VERSION 
+                    OUTPUT_VARIABLE ${prefix}_FULL_GIT_VERSION 
                     ERROR_VARIABLE ${prefix}_ERROR
                     OUTPUT_STRIP_TRAILING_WHITESPACE
                     ERROR_STRIP_TRAILING_WHITESPACE
         )
+        #message( STATUS "${prefix}_FULL_GIT_VERSION=${${prefix}_FULL_GIT_VERSION}")
+
         
-        if ( "${_FULL_GIT_VERSION}" STREQUAL "" )
+        if ( "${${prefix}_FULL_GIT_VERSION}" STREQUAL "" )
             MESSAGE( FATAL_ERROR "Could not get GIT info on directory '${dir}'\r     '${${prefix}_ERROR}'" )
             SET(${prefix}_REV "N/A")
             SET(${prefix}_DIFF "")
@@ -62,29 +64,34 @@ IF(GIT_EXE_EXECUTABLE)
             SET(${prefix}_TAG "N/A")
             SET(${prefix}_BRANCH "N/A")
         else()
-            LIST( LENGTH _FULL_GIT_VERSION _LEN )
+            LIST( LENGTH ${prefix}_FULL_GIT_VERSION _LEN )
             if ( _LEN GREATER 2)
-                MESSAGE( FATAL_ERROR "Invalid GIT format for version returned '${_FULL_GIT_VERSION}'" )
+                MESSAGE( FATAL_ERROR "Invalid GIT format for version returned '${${prefix}_FULL_GIT_VERSION}'" )
             ENDIF()
 
-            LIST( GET _FULL_GIT_VERSION 0 ${prefix}_REV )
+            LIST( GET ${prefix}_FULL_GIT_VERSION 0 ${prefix}_REV )
             if ( _LEN EQUAL 2 )
-                LIST( GET _FULL_GIT_VERSION 1 ${prefix}_DIFF )
+                LIST( GET ${prefix}_FULL_GIT_VERSION 1 ${prefix}_DIFF )
             ELSE()
                 SET( ${prefix}_DIFF FALSE )
             ENDIF()
 
+            #message( STATUS "${prefix}_DIFF=${${prefix}_DIFF}")
+
+
             string(REPLACE "-g" ";"  ${prefix}_REV ${${prefix}_REV} )
             LIST( LENGTH ${prefix}_REV _LEN )
             if ( _LEN GREATER 2)
-                MESSAGE( FATAL_ERROR "Invalid GIT format for version returned '${_FULL_GIT_VERSION}'" )
+                MESSAGE( FATAL_ERROR "Invalid GIT format for version returned '${${prefix}_FULL_GIT_VERSION}'" )
             ENDIF()
             
             if ( _LEN EQUAL 2)
                 LIST( GET ${prefix}_REV 1 ${prefix}_REV )
             ENDIF()
-                      
-           execute_process(
+
+            #message( STATUS "${prefix}_REV=${${prefix}_REV}")
+
+            execute_process(
                 COMMAND ${GIT_EXE_EXECUTABLE} -C "${dir}" 
                     describe --exact-match --tags
                     WORKING_DIRECTORY "${dir}"
@@ -92,6 +99,8 @@ IF(GIT_EXE_EXECUTABLE)
                     ERROR_QUIET
                     OUTPUT_STRIP_TRAILING_WHITESPACE
             )
+            
+            #message( STATUS "${prefix}_TAG=${${prefix}_TAG}")
 
             execute_process(
                 COMMAND ${GIT_EXE_EXECUTABLE} -C "${dir}" 
@@ -102,6 +111,7 @@ IF(GIT_EXE_EXECUTABLE)
                     OUTPUT_STRIP_TRAILING_WHITESPACE
             )
             
+            #message( STATUS "${prefix}_BRANCH=${${prefix}_BRANCH}")
             #git rev-list --count @{u}..HEAD                      
             execute_process(
                 COMMAND ${GIT_EXE_EXECUTABLE} -C "${dir}" 
@@ -111,9 +121,11 @@ IF(GIT_EXE_EXECUTABLE)
                     ERROR_QUIET
                     OUTPUT_STRIP_TRAILING_WHITESPACE
             )
+
             if( "0" STREQUAL "${${prefix}_AHEAD}" )
-                set( ${prefix}_AHEAD "" )
+                set( ${prefix}_AHEAD "\"\"" )
             endif()
+            #message( STATUS "${prefix}_AHEAD=${${prefix}_AHEAD}")
         endif()
         SET(ENV{LC_ALL} ${_GIT_SAVED_LC_ALL})
     ENDMACRO()
@@ -125,7 +137,7 @@ IF(GIT_EXE_EXECUTABLE)
         #message( STATUS "MINOR=${MINOR}" )
         #message( STATUS "_CURRDATE=${_CURRDATE}" )
         #message( STATUS "_TAGNAME=${_TAGNAME}" )
-        # message( STATUS "${GIT_EXE_EXECUTABLE} tag -a v${_TAGNAME} -m 'Release ${_TAGNAME}'" )
+        #message( STATUS "${GIT_EXE_EXECUTABLE} tag -a v${_TAGNAME} -m 'Release ${_TAGNAME}'" )
 
         string( APPEND _ECHO1
             "$<IF:$<CONFIG:RelWithDebInfo>,"
