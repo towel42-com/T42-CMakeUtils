@@ -30,9 +30,28 @@ if( NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake" )
 endif()
 
 include( ${CMAKE_CURRENT_LIST_DIR}/Project.cmake )
-add_definitions( -DTOWEL42_QCORE_SUPPORT )
 
-find_package(Qt6 COMPONENTS Core Widgets REQUIRED)
+MACRO(AddT42Support whichLibVar libName)
+    if( ${whichLibVar} )
+        find_package(Qt6 COMPONENTS ${libName} REQUIRED)
+        add_definitions( -D${whichLibVar} )        
+    endif()
+endmacro()
+
+
+AddT42Support( TOWEL42_BIFSUPPORT Core )
+AddT42Support( TOWEL42_GIFSUPPORT Core )
+AddT42Support( TOWEL42_MKVUTILS Multimedia )
+AddT42Support( TOWEL42_QAXOBJECT_SUPPORT AxContainer )
+AddT42Support( TOWEL42_QCONCURRENT_SUPPORT Concurrent )
+AddT42Support( TOWEL42_QCORE_SUPPORT Core )
+AddT42Support( TOWEL42_QNETWORK_SUPPORT Network )
+AddT42Support( TOWEL42_QSQL_SUPPORT Sql )
+AddT42Support( TOWEL42_QWIDGET_SUPPORT Widgets )
+#AddT42Support( TOWEL42_QXMLPATTERNS_SUPPORT XmlPatterns )
+AddT42Support( TOWEL42_QXML_SUPPORT Xml )
+AddT42Support( TOWEL42_ZIP_SUPPORT Core )
+
 find_package(Qt6SrcMoc)
 
 SET(CMAKE_AUTOMOC OFF)
