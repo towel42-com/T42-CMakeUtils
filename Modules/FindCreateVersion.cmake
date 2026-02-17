@@ -2,7 +2,7 @@ find_package(InstallFile REQUIRED)
 
 FUNCTION(CreateVersion)
 
-    set( options )
+    set( options SUBDIR)
     set( oneValueArgs MAJOR MINOR PATCH DIFF AHEAD TEMPLATE APP_NAME VENDOR HOMEPAGE PRODUCT_HOMEPAGE EMAIL BUILD_DATE BUILD_TIME COPYRIGHT START_YEAR)
     set( multiValueArgs )
     cmake_parse_arguments(
@@ -14,6 +14,11 @@ FUNCTION(CreateVersion)
         )
 
     set(OUTFILE "${CMAKE_BINARY_DIR}/Version.h")
+    if ( _CREATE_VERSION_SUBDIR )
+        file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/Version")
+        set(OUTFILE "${CMAKE_BINARY_DIR}/Version/Version.h")
+    endif()
+    
     set(TMP_OUTFILE ${OUTFILE}.tmp)
     
     if ( ( NOT _CREATE_VERSION_START_YEAR ) OR ( "${_CREATE_VERSION_START_YEAR}" STREQUAL "" ) )

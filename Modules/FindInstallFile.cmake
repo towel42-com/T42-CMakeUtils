@@ -20,10 +20,6 @@ FUNCTION (InstallFile inFile outFile)
     #MESSAGE( STATUS "inFile=${inFile}" )
     #MESSAGE( STATUS "outFile=${outFile}" )
         
-    get_filename_component( baseName ${outFile} NAME)
-    configure_file( ${inFile} ${outFile} COPYONLY ) # creates a dependency on TMP_OUTFILE
-
-    #configure file does all the work, but I want to see what happened
     IF ( EXISTS ${outFile} )
         EXECUTE_PROCESS( 
             COMMAND ${CMAKE_COMMAND} -E compare_files ${inFile} ${outFile} 
@@ -31,15 +27,18 @@ FUNCTION (InstallFile inFile outFile)
             OUTPUT_QUIET 
             ERROR_QUIET
         )
+    else()
+        set( filesDifferent 0 )
+    endif()
 
-        IF ( ${filesDifferent} )
-            MESSAGE( STATUS "${outFile} has been updated." )
-        else()
-            MESSAGE( STATUS "${outFile} is up to date." )
-        ENDIF()
-    ELSE ()
+    configure_file( ${inFile} ${outFile} COPYONLY )
+
+    IF ( ${filesDifferent} STREQUAL "1" )
         MESSAGE( STATUS "${outFile} has been updated." )
-    ENDIF ()
+    else()
+        # Dont be concerned if its never up to date as it updates the build time
+        MESSAGE( STATUS "${outFile} is up to date." )
+    ENDIF()
 
     if ( _REMOVE_ORIG )
         file(REMOVE ${inFile})
