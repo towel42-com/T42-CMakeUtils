@@ -29,7 +29,7 @@
     #include <QString>
     #include <QStringLiteral>
     #include <QDateTime>
-    #include <QApplication>
+    #include <QCoreApplication>
     #include <QTimeZone>
     #define TRANSLATE( str ) QObject::tr( str )
 using TStringType = QString;
