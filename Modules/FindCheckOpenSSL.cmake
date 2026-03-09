@@ -100,7 +100,7 @@ function(DeployOpenSSL target directory)
     cmake_parse_arguments( "" "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
     if( NOT DEFINED OPENSSL_DEPLOY_LIBS )
-        MESSAGE( FATAL_ERROR "Required OpenSSL shared libraries were not found, please call CheckOpenSSL()" )
+        MESSAGE( FATAL_ERROR "Required OpenSSL shared libraries were not found, please call cmake function 'CheckOpenSSL()'" )
     endif()
     
     #MESSAGE( STATUS "OpenSSL Found, Deploying OpenSSL Libraries for target '${target}'" )
