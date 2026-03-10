@@ -52,6 +52,7 @@ MACRO(IncludeProjectSettings)
     endif()
     
     #MESSAGE( STATUS "Found ${_PROJECT_FILE}" )
+    message( STATUS "Loading Project File: ${_PROJECT_FILE} for project ${PROJECT_NAME}" )
     include( "${_PROJECT_FILE}" )
     UNSET( _PROJECT_BASE_FILE )
     UNSET( _PROJECT_FILE )
