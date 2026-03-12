@@ -20,6 +20,18 @@ FUNCTION(CreateVersionInfoFile)
     if ( "${MINOR_VERSION}" STREQUAL "" )
         MESSAGE( FATAL_ERROR "MINOR_VERSION must be set" )
     endif()
+    
+    if ( NOT GIT_VERSION_INFO_START_YEAR )
+        find_package(Git REQUIRED)
+        GetGitInfo(${CMAKE_SOURCE_DIR} GIT_VERSION_INFO)
+    endif()
+
+    STRING(TIMESTAMP CURR_YEAR "%Y")
+    if ( ${GIT_VERSION_INFO_START_YEAR} STREQUAL ${CURR_YEAR} )
+        SET( COPYRIGHT_YEARS "${GIT_VERSION_INFO_START_YEAR}"  )
+    else()
+        SET( COPYRIGHT_YEARS "${GIT_VERSION_INFO_START_YEAR}-${CURR_YEAR}" )
+    endif()
 
     SET( TMP_FILE ${VERSIONINFO_FILE}.bak )
     SET( OUTFILE ${VERSIONINFO_FILE} )
