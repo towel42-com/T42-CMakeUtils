@@ -58,7 +58,7 @@ namespace NVersion
     inline const TStringType EMAIL = TRANSLATE( "@VERSION_FILE_EMAIL@" );
     inline const TStringType COPYRIGHT = TRANSLATE( "@VERSION_FILE_COPYRIGHT@" );
     inline const TStringType BUILD_DATE_UTC = TRANSLATE( "@VERSION_FILE_BUILD_DATE@" ) + TRANSLATE( "Z" );   // IN UTC
-    inline const TStringType BUILD_TIME_UTC = TRANSLATE( "@VERSION_FILE_BUILD_TIME@" ) + TRANSLATE( "UTCZ" );   // IN UTC
+    inline const TStringType BUILD_TIME_UTC = TRANSLATE( "@VERSION_FILE_BUILD_TIME@" ) + TRANSLATE( "Z" );   // IN UTC
 
     template< typename T >
     TStringType toString( T value )
