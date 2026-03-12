@@ -13,8 +13,10 @@ FUNCTION(CreateVersion)
         "${multiValueArgs}"
         )
 
+    set( DESC_FILE_NAME Version.h )
     set(OUTFILE "${CMAKE_BINARY_DIR}/Version.h")
     if ( _CREATE_VERSION_SUBDIR )
+        set( DESC_FILE_NAME Version/Version.h )
         file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/Version")
         set(OUTFILE "${CMAKE_BINARY_DIR}/Version/Version.h")
     endif()
@@ -63,7 +65,7 @@ FUNCTION(CreateVersion)
     endforeach()
     #MESSAGE( STATUS "===========================" )
 
-    message( STATUS "Generating version file '${OUTFILE}'" )
+    message( CHECK_START "Generating/Updating ${DESC_FILE_NAME}" )
 
     set(VERSION_FILE_MAJOR_VERSION ${_CREATE_VERSION_MAJOR})
     set(VERSION_FILE_MINOR_VERSION ${_CREATE_VERSION_MINOR})
@@ -95,5 +97,6 @@ FUNCTION(CreateVersion)
         PROPERTY CMAKE_CONFIGURE_DEPENDS
         ${OUTFILE}
         )
+    message(CHECK_PASS "Generated/Updated" )
 
 ENDFUNCTION()

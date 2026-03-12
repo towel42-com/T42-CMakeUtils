@@ -1,6 +1,6 @@
 #include(CMakeParseArguments)
 
-FUNCTION (InstallFile inFile outFile)
+FUNCTION(InstallFile inFile outFile)
     set( options REMOVE_ORIG )
     set( oneValueArgs )
     set( multiValueArgs )
@@ -19,29 +19,39 @@ FUNCTION (InstallFile inFile outFile)
 
     #MESSAGE( STATUS "inFile=${inFile}" )
     #MESSAGE( STATUS "outFile=${outFile}" )
-        
+
+    MESSAGE( CHECK_START "Checking for existing ${outFile} file" )
+    SET( _copy_file 0 )
     IF ( EXISTS ${outFile} )
+        MESSAGE( CHECK_PASS "Exists" )
+        MESSAGE( CHECK_START "Checking if existing file is different" )
         EXECUTE_PROCESS( 
             COMMAND ${CMAKE_COMMAND} -E compare_files ${inFile} ${outFile} 
             RESULT_VARIABLE filesDifferent
             OUTPUT_QUIET 
             ERROR_QUIET
         )
+        IF ( ${filesDifferent} STREQUAL "1" )
+            MESSAGE( CHECK_PASS "Different" )
+            SET( _copy_file 1 )
+        else()
+            MESSAGE( CHECK_PASS "Same" )
+        endif()
     else()
-        set( filesDifferent 0 )
+        MESSAGE( CHECK_PASS "Not Found" )
+        SET( _copy_file 1 )
     endif()
 
-    configure_file( ${inFile} ${outFile} COPYONLY )
-
-    IF ( ${filesDifferent} STREQUAL "1" )
-        MESSAGE( STATUS "${outFile} has been updated." )
-    else()
-        # Dont be concerned if its never up to date as it updates the build time
-        MESSAGE( STATUS "${outFile} is up to date." )
-    ENDIF()
+    if ( _copy_file )
+        MESSAGE( CHECK_START "Updating file" )
+        configure_file( ${inFile} ${outFile} COPYONLY )
+        MESSAGE( CHECK_PASS  "Updated" )
+    endif()
 
     if ( _REMOVE_ORIG )
+        MESSAGE( CHECK_START "Removing Original ${inFile}" )
         file(REMOVE ${inFile})
+        MESSAGE( CHECK_PASS  "Removed" )
     ENDIF()
 ENDFUNCTION()
 
