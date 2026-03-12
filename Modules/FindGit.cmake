@@ -38,6 +38,9 @@ IF(GIT_EXE_EXECUTABLE)
         # ${prefix}_AHEAD -> If the git repois ahead of the remote server
         # ${prefix}_TAG -> The current git tag
         # ${prefix}_BRANCH -> The current git branch
+        # ${prefix}_BRANCH -> The current git branch
+        # ${prefix}_INFO_START_DATE -> the date YYYY-MM-DD of the first commit 
+        # ${prefix}_INFO_START_YEAR -> the year of the first commit
 
         SET(_GIT_SAVED_LC_ALL "$ENV{LC_ALL}")
         SET(ENV{LC_ALL} C)
@@ -126,6 +129,19 @@ IF(GIT_EXE_EXECUTABLE)
                 set( ${prefix}_AHEAD "\"\"" )
             endif()
             #message( STATUS "${prefix}_AHEAD=${${prefix}_AHEAD}")
+
+            #git log --reverse --max-count=1 --date=default-local --pretty=tformat:'%cs'
+            execute_process(
+                COMMAND ${GIT_EXE_EXECUTABLE} -C "${dir}" 
+                    log --reverse --max-count=1 --date=default-local --pretty=tformat:%cs
+                    WORKING_DIRECTORY "${dir}"
+                    OUTPUT_VARIABLE ${prefix}_START_DATE
+                    ERROR_QUIET
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+            #message( STATUS "${prefix}_START_DATE=${${prefix}_START_DATE}")
+            STRING(SUBSTRING "${${prefix}_START_DATE}}" 0 4 ${prefix}_START_YEAR)
+            #message( STATUS "${prefix}_START_YEAR=${${prefix}_START_YEAR}")
         endif()
         SET(ENV{LC_ALL} ${_GIT_SAVED_LC_ALL})
     ENDMACRO()
