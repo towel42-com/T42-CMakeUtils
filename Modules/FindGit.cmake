@@ -133,7 +133,17 @@ IF(GIT_EXE_EXECUTABLE)
             #git log --reverse --max-count=1 --date=default-local --pretty=tformat:'%cs'
             execute_process(
                 COMMAND ${GIT_EXE_EXECUTABLE} -C "${dir}" 
-                    log --reverse --max-count=1 --date=default-local --pretty=tformat:%cs
+                    rev-list --max-parents=0 HEAD
+                    WORKING_DIRECTORY "${dir}"
+                    OUTPUT_VARIABLE _FIRST_HASH
+                    ERROR_QUIET
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+
+            #git log --reverse --max-count=1 --date=default-local --pretty=tformat:'%cs'
+            execute_process(
+                COMMAND ${GIT_EXE_EXECUTABLE} -C "${dir}" 
+                    log ${_FIRST_HASH} --date=default-local --pretty=tformat:%cs
                     WORKING_DIRECTORY "${dir}"
                     OUTPUT_VARIABLE ${prefix}_START_DATE
                     ERROR_QUIET
