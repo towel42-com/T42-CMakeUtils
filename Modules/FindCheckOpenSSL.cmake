@@ -25,39 +25,44 @@ if ( NOT WIN32 )
     find_package( OpenSSL REQUIRED )
 endif()
 
-function( CheckOpenSSL )
+function( CheckOpenSSL VERSION )
     if ( NOT DEFINED OPENSSL_DEPLOY_LIBS )
         if ( NOT DEFINED OPENSSL_FOUND ) 
             if ( DEFINED OPENSSL_ROOT_DIR )
                 MESSAGE( STATUS "OPENSSL_ROOT_DIR is set, calling find_package( OpenSSL REQUIRED )" )
                 find_package( OpenSSL REQUIRED )
             elseif ( WIN32 )
-                MESSAGE( STATUS
-                      " Neither OPENSSL_FOUND and OPENSSL_ROOT_DIR are set, checking default locations." )
-
+                
+                MESSAGE( STATUS "Neither OPENSSL_FOUND and OPENSSL_ROOT_DIR are set" )
+                MESSAGE( CHECK_START "Checking default locations." )
+                STRING( REPLACE "." "_" VERSION_UNDER ${VERSION} )
+                STRING( REPLACE "_" "." VERSION_DECIMAL ${VERSION_UNDER} )
                 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
                     SET( _PROGRAM_FILES $ENV{PROGRAMFILES}/OpenSSL-Win64 )
                     SET( _SUFFIX x64 )
-                    SET( _OPENSSL_DLL libssl-1_1-x64.dll )
+                    SET( _OPENSSL_DLL libssl-${VERSION_UNDER}-x64.dll )
                 elseif( CMAKE_SIZEOF_VOID_P EQUAL 4 )
                     SET( _PROGRAM_FILES $ENV{PROGRAMFILES\(X86\)}/OpenSSL-Win32 )
                     SET( _SUFFIX x86 )
-                    SET( _OPENSSL_DLL libssl-1_1.dll )
+                    SET( _OPENSSL_DLL libssl-${VERSION_UNDER}.dll )
                 endif()
                 
  #               set(CMAKE_FIND_DEBUG_MODE TRUE)
                 find_path( 
                     OPENSSL_ROOT_DIR 
                     bin/${_OPENSSL_DLL} 
-                    PATHS C:/OpenSSL/openssl-1.1/${_SUFFIX} D:/OpenSSL/openssl-1.1/${_SUFFIX} ${_PROGRAM_FILES} 
+                    PATHS C:/OpenSSL/openssl-${VERSION_DECIMAL}${_SUFFIX} D:/OpenSSL/openssl-${VERSION_DECIMAL}/${_SUFFIX} ${_PROGRAM_FILES} 
                     NO_CACHE 
                     REQUIRED 
                     NO_DEFAULT_PATH )
                 set(CMAKE_FIND_DEBUG_MODE FALSE)
-
+                
                 if ( DEFINED OPENSSL_ROOT_DIR )
+                    MESSAGE( CHECK_PASS "Found" )
                     MESSAGE( STATUS "Trying ${OPENSSL_ROOT_DIR}" )
                     find_package( OpenSSL REQUIRED )
+                else()
+                    MESSAGE( CHECK_FAIL "Not Found" )
                 endif()
 #                set(CMAKE_FIND_DEBUG_MODE FALSE)
             endif()
@@ -76,7 +81,7 @@ function( CheckOpenSSL )
             if ( IS_DIRECTORY ${OPENSSL_ROOT_DIR}/bin )
                 SET( SUFFIX ".dll" )
                 SET( OPENSSL_DEPLOY_BINDIR ${OPENSSL_ROOT_DIR}/bin CACHE INTERNAL "Locations of OpenSSL shared library directory" )
-                SET( OPENSSL_DEPLOY_LIBS ${OPENSSL_DEPLOY_BINDIR}/libcrypto-1_1-x64${SUFFIX} ${OPENSSL_DEPLOY_BINDIR}/libssl-1_1-x64${SUFFIX} CACHE INTERNAL "Locations of OpenSSL shared libraries" )
+                SET( OPENSSL_DEPLOY_LIBS ${OPENSSL_DEPLOY_BINDIR}/libcrypto-${VERSION_UNDER}-x64${SUFFIX} ${OPENSSL_DEPLOY_BINDIR}/libssl-${VERSION_UNDER}-x64${SUFFIX} CACHE INTERNAL "Locations of OpenSSL shared libraries" )
                 mark_as_advanced(OPENSSL_DEPLOY_LIBS)
             else()
                 MESSAGE( FATAL_ERROR "${OPENSSL_ROOT_DIR}/bin does not exist, so deployment libraries can not be found" )
