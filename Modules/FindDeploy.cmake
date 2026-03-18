@@ -26,20 +26,20 @@ find_package(DeploySystem REQUIRED)
 if( TOWEL42_QCORE_SUPPORT )
     find_package(Qt6Core REQUIRED)
 
+    find_program(_qtpaths_exec qtpaths REQUIRED)
+    #message( STATUS "Found qtpaths=${_qtpaths_exec}")
+    execute_process( 
+        COMMAND ${_qtpaths_exec} -qt-query QT_INSTALL_BINS
+        OUTPUT_VARIABLE _qt_bin_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if ( NOT EXISTS "${_qt_bin_dir}" )
+        MESSAGE( FATAL "Could not find Qt's Bin Dir'")
+    endif()
+
     if( NOT DEFINED DEPLOYQT_EXECUTABLE )
         # Retrieve the absolute path to qmake and then use that path to find
         # the <os>deployqt binaries
-        find_program(_qtpaths_exec qtpaths REQUIRED)
-        #message( STATUS "Found qtpaths=${_qtpaths_exec}")
-        execute_process( 
-            COMMAND ${_qtpaths_exec} -qt-query QT_INSTALL_BINS
-            OUTPUT_VARIABLE _qt_bin_dir
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
-        #message( STATUS "bindir = ${_qt_bin_dir}")
-        if ( NOT EXISTS "${_qt_bin_dir}" )
-            MESSAGE( FATAL "Could not find Qt's Bin Dir'")
-        endif()
 
         find_program(DEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
         if(NOT DEPLOYQT_EXECUTABLE)
@@ -116,6 +116,7 @@ if( TOWEL42_QCORE_SUPPORT )
             endforeach()
         endif()
 
+        MESSAGE( STATUS "_qt_bin_dir=${_qt_bin_dir}" )
         if ( NOT _INSTALL_ONLY )
             SET(_QTDEPLOY_TARGET "$<TARGET_FILE:${target}>" )
             SET(_QTDEPLOY_OPTIONS_LCL "--dir=\"$<TARGET_FILE_DIR:${target}>\";--verbose=1;--no-compiler-runtime;--no-opengl-sw;--no-system-dxc-compiler;--pdb;${NO_TRANSLATIONS_OPT}" )
