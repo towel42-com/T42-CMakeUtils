@@ -37,11 +37,14 @@ if( TOWEL42_QCORE_SUPPORT )
         MESSAGE( FATAL "Could not find Qt's Bin Dir'")
     endif()
 
+    SET( QT_BIN_DIR ${_qt_bin_dir} CACHE PATH "Qt Bin Directory" )
+    mark_as_advanced(QT_BIN_DIR)
+
     if( NOT DEFINED DEPLOYQT_EXECUTABLE )
         # Retrieve the absolute path to qmake and then use that path to find
         # the <os>deployqt binaries
 
-        find_program(DEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
+        find_program(DEPLOYQT_EXECUTABLE windeployqt HINTS "${QT_BIN_DIR}")
         if(NOT DEPLOYQT_EXECUTABLE)
             message(FATAL_ERROR "windeployqt not found")
         endif()
@@ -116,16 +119,15 @@ if( TOWEL42_QCORE_SUPPORT )
             endforeach()
         endif()
 
-        MESSAGE( STATUS "_qt_bin_dir=${_qt_bin_dir}" )
         if ( NOT _INSTALL_ONLY )
             SET(_QTDEPLOY_TARGET "$<TARGET_FILE:${target}>" )
             SET(_QTDEPLOY_OPTIONS_LCL "--dir=\"$<TARGET_FILE_DIR:${target}>\";--verbose=1;--no-compiler-runtime;--no-opengl-sw;--no-system-dxc-compiler;--pdb;${NO_TRANSLATIONS_OPT}" )
 
             # Run deployqt immediately after build to make the build area "complete"
             add_custom_command(TARGET ${target} POST_BUILD
-                COMMAND "${CMAKE_COMMAND}" -E echo "Deploying Qt to Build Area for Project '${target}' using '${DEPLOYQT_EXECUTABLE}' ${_QTDEPLOY_OPTIONS_LCL} ${_QTDEPLOY_TARGET} ${EXTRA_TARGETS_OPT}"
+                COMMAND "${CMAKE_COMMAND}" -E echo "Deploying Qt to Build Area for Project '${target}' using '${DEPLOYQT_EXECUTABLE}' ${_QTDEPLOY_OPTIONS_LCL} ${_QTDEPLOY_TARGET} ${EXTRA_TARGETS_OPT} PATH='${QT_BIN_DIR}'"
                 COMMAND "${CMAKE_COMMAND}" -E
-                    env PATH="${_qt_bin_dir}" "${DEPLOYQT_EXECUTABLE}"
+                    env PATH="${QT_BIN_DIR}" "${DEPLOYQT_EXECUTABLE}"
                         ${_QTDEPLOY_OPTIONS_LCL}
                         ${_QTDEPLOY_TARGET} ${EXTRA_TARGETS_OPT}
             )
@@ -149,7 +151,7 @@ if( TOWEL42_QCORE_SUPPORT )
                 MESSAGE( STATUS \"Deploying Qt to the Install Area '\${CMAKE_INSTALL_PREFIX}/${directory}' for Project '${target}' using '${DEPLOYQT_EXECUTABLE}' ...\" )
                 execute_process(
                     COMMAND \"${CMAKE_COMMAND}\" -E
-                        env PATH=\"${_qt_bin_dir}\" \"${DEPLOYQT_EXECUTABLE}\"
+                        env PATH=\"${QT_BIN_DIR}\" \"${DEPLOYQT_EXECUTABLE}\"
                             \${_QTDEPLOY_OPTIONS}
                             \${_file}
                     OUTPUT_VARIABLE _output
