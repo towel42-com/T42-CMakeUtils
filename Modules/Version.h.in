@@ -37,7 +37,8 @@ namespace NVersion
     public:
         virtual int majorVersion() const override { return @VERSION_FILE_MAJOR_VERSION@; }
         virtual int minorVersion() const override { return @VERSION_FILE_MINOR_VERSION@; }
-        virtual QString patchVersion() const override { return QStringLiteral( "@VERSION_FILE_PATCH_VERSION@" ); }
+        virtual int patchVersion() const override { return @VERSION_FILE_PATCH_VERSION@; }
+        virtual QString gitVersion() const override { return QStringLiteral( "@VERSION_FILE_GIT_VERSION@" ); }
         virtual uint16_t patchVersionLow() const override { return @VERSION_FILE_PATCH_VERSION_LOW@; }
         virtual uint16_t patchVersionHigh() const override { return @VERSION_FILE_PATCH_VERSION_HIGH@; }
         virtual bool modified() const override { return @VERSION_FILE_DIFF@; }
