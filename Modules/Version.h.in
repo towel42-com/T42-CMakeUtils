@@ -48,7 +48,7 @@ namespace NVersion
         virtual QString homePage() const override { return QStringLiteral( "@VERSION_FILE_HOMEPAGE@" ); }
         virtual QString productHomePage() const override { return QStringLiteral( "@VERSION_FILE_PRODUCT_HOMEPAGE@" ); }
         virtual QString email() const override { return QStringLiteral( "@VERSION_FILE_EMAIL@" ); }
-        virtual QString copyright() const override { return QStringLiteral( "@VERSION_FILE_COPYRIGHT@" ); }
+        virtual QString copyright() const override { return QString::fromUtf8( u8R"__(@VERSION_FILE_COPYRIGHT@)__" ); }
         virtual QString buildDateUTC() const override { return QStringLiteral( "@VERSION_FILE_BUILD_DATE@" ) + QStringLiteral( "Z" ); }
         virtual QString buildTimeUTC() const override { return QStringLiteral( "@VERSION_FILE_BUILD_TIME@" ) + QStringLiteral( "Z" ); }
     };
