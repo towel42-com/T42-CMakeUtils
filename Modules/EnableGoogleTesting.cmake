@@ -27,6 +27,8 @@ SET( TOWEL42_ENABLE_TESTING ON CACHE BOOL "Enable Unit Testing of Towel 42 Utils
 if( TOWEL42_ENABLE_TESTING )
     if( EXISTS ${CMAKE_SOURCE_DIR}/T42-Utils/googletest )
         SET(GOOGLETEST_ROOT_DIR ${CMAKE_SOURCE_DIR}/T42-Utils/googletest )
+    elseif( EXISTS ${CMAKE_SOURCE_DIR}/googletest )
+        SET(GOOGLETEST_ROOT_DIR ${CMAKE_SOURCE_DIR}/googletest )
     else()
         MESSAGE( FATAL_ERROR "Could not find googletest root directory" )
         
