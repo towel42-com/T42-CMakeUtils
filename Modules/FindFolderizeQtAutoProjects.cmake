@@ -24,12 +24,12 @@ cmake_minimum_required(VERSION 3.31)
 
 function(getAllSubdirs dir _OUTVAR)
     set(_dirs "")
+    list(APPEND _dirs ${dir})
     # get subdirectories for dir
     get_property(subdirs DIRECTORY ${dir} PROPERTY SUBDIRECTORIES)
     # iterate any found subdirectories
     foreach(subdir ${subdirs})
 #        # append each sub directory
-        list(APPEND _dirs ${subdir})
         getAllSubdirs(${subdir} curr_OUTVAR)
         list(APPEND _dirs ${curr_OUTVAR})
     endforeach()
@@ -39,16 +39,18 @@ endfunction()
 function( FolderizeQtAutoProjects )
     #message( STATUS "CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}" )
     getAllSubDirs(${CMAKE_SOURCE_DIR} _ALLDIRS )
-
+    #message( STATUS "BUILDSYSTEM_TARGETS=${BUILDSYSTEM_TARGETS}" )
+ 
     foreach( dir ${_ALLDIRS} )
         #MESSAGE( STATUS "dir=${dir}" )
         get_property(targets DIRECTORY ${dir} PROPERTY "BUILDSYSTEM_TARGETS")
         #MESSAGE( STATUS "targets=${targets}" )
-        
-        set( _suffixes _qmlimportscan _other_files _autogen _automoc_json_extraction qt_internal_plugins)
+        set( _suffixes _qmlimportscan _other_files autogen _automoc_json_extraction qt_internal_plugins)
         STRING( JOIN ")|(" _regex ${_suffixes} )
         STRING( CONCAT _regex "^.*(" ${_regex} ")$" )
         foreach( _target ${targets} )
+            get_target_property(target_type ${_target} TYPE)
+            #MESSAGE( STATUS "${dir} - ${_target} - TARGETTYPE=${target_type}" )
             if( ${_target} MATCHES ${_regex} )
                 message( STATUS "Adding target '${_target}' to QtAutoProjects" )
                 set_target_properties( ${_target} PROPERTIES FOLDER QtAutoProjects )
