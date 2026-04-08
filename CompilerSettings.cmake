@@ -73,6 +73,7 @@ add_link_options(
 )
 
 add_compile_options(
+    $<$<CXX_COMPILER_ID:MSVC>:/Zm200>
     $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<EQUAL:${BITSIZE},32>,$<VERSION_GREATER_EQUAL:${MSVC_VERSION},1800>>:/SAFESEH:NO>
     $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<EQUAL:${BITSIZE},64>>:/bigobj>
 
