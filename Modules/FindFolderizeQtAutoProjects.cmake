@@ -21,24 +21,27 @@
 # SOFTWARE.
 
 cmake_minimum_required(VERSION 3.31)
-
-function(getAllSubdirs dir _OUTVAR)
-    set(_dirs "")
-    list(APPEND _dirs ${dir})
-    # get subdirectories for dir
-    get_property(subdirs DIRECTORY ${dir} PROPERTY SUBDIRECTORIES)
-    # iterate any found subdirectories
-    foreach(subdir ${subdirs})
-#        # append each sub directory
-        getAllSubdirs(${subdir} curr_OUTVAR)
-        list(APPEND _dirs ${curr_OUTVAR})
-    endforeach()
-    SET( ${_OUTVAR} ${_dirs} PARENT_SCOPE )
-endfunction()
+find_package( FindAllDirectories REQUIRED )
 
 function( FolderizeQtAutoProjects )
-    #message( STATUS "CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}" )
-    getAllSubDirs(${CMAKE_SOURCE_DIR} _ALLDIRS )
+    set( options "")
+    set( oneValueArgs FOLDER_NAME TOPDIR )
+    set( multiValueArgs )
+
+    cmake_parse_arguments(PARSE_ARGV 0 arg
+        "${options}" "${oneValueArgs}" "${multiValueArgs}"
+    )
+
+    if ( NOT arg_TOPDIR )
+        SET( arg_TOPDIR ${CMAKE_SOURCE_DIR} )
+    endif()
+
+    if ( NOT arg_FOLDER_NAME )
+        SET( arg_FOLDER_NAME QtAutoProjects )
+    endif()
+    
+    message( STATUS "Searching for Qt Auto Projects in=${arg_TOPDIR}" )
+    FindAllDirectories(${arg_TOPDIR} _ALLDIRS )
     #message( STATUS "BUILDSYSTEM_TARGETS=${BUILDSYSTEM_TARGETS}" )
  
     foreach( dir ${_ALLDIRS} )
@@ -52,8 +55,8 @@ function( FolderizeQtAutoProjects )
             get_target_property(target_type ${_target} TYPE)
             #MESSAGE( STATUS "${dir} - ${_target} - TARGETTYPE=${target_type}" )
             if( ${_target} MATCHES ${_regex} )
-                message( STATUS "Adding target '${_target}' to QtAutoProjects" )
-                set_target_properties( ${_target} PROPERTIES FOLDER QtAutoProjects )
+                message( STATUS "Adding target '${_target}' to ${arg_FOLDER_NAME}" )
+                set_target_properties( ${_target} PROPERTIES FOLDER ${arg_FOLDER_NAME} )
             endif()
         endforeach()
     endforeach()
