@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.31)
 FUNCTION( AddDesignerPlugin )
     set( options "")
-    set( oneValueArgs NAME BASENAME )
+    set( oneValueArgs NAME BASENAME PLUGIN_DIR )
     set( multiValueArgs FILES INCLUDE_DIRECTORIES LINK_LIBS COMPILER_DEFINES)
     cmake_parse_arguments(PARSE_ARGV 0 arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}"
@@ -26,7 +26,11 @@ FUNCTION( AddDesignerPlugin )
         endif()
     endif()
     
-    MESSAGE( STATUS "Creating Designer Plugin ${arg_NAME}" )
+    if ( NOT arg_PLUGIN_DIR )
+        SET( arg_PLUGIN_DIR "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_PLUGINS}/designer" )
+    endif()
+
+    MESSAGE( STATUS "Creating Designer Plugin ${arg_NAME} - Installing to '${arg_PLUGIN_DIR}'" )
     #MESSAGE( STATUS "Creating Designer Plugin ${arg_NAME} using ${arg_FILES}" )
     if ( arg_LINK_LIBS )
     #    MESSAGE( STATUS "    LINK_LIBS=${arg_LINK_LIBS}" )
@@ -59,12 +63,11 @@ FUNCTION( AddDesignerPlugin )
     )
     target_compile_definitions( ${PROJECT_NAME} PRIVATE ${arg_COMPILER_DEFINES} )
 
-    set(INSTALL_PLUGINS_DIR "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_PLUGINS}/designer")
-    
+    #message( STATUS "arg_PLUGIN_DIR=${arg_PLUGIN_DIR}" )  
     install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION "${INSTALL_PLUGINS_DIR}"
-        BUNDLE DESTINATION "${INSTALL_PLUGINS_DIR}"
-        LIBRARY DESTINATION "${INSTALL_PLUGINS_DIR}"
+        RUNTIME DESTINATION "${arg_PLUGIN_DIR}"
+        BUNDLE DESTINATION "${arg_PLUGIN_DIR}"
+        LIBRARY DESTINATION "${arg_PLUGIN_DIR}"
     )
     if ( arg_INCLUDE_DIRECTORIES )
         target_include_directories( ${PROJECT_NAME} PRIVATE ${arg_INCLUDE_DIRECTORIES} )
