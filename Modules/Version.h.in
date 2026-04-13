@@ -45,7 +45,7 @@ namespace NVersion
         virtual QString ahead() const override { return QStringLiteral( "@VERSION_FILE_AHEAD@" ); }
         virtual QString appName() const override { return QStringLiteral( "@VERSION_FILE_APP_NAME@" ); }
         virtual QString vendor() const override { return QStringLiteral( "@VERSION_FILE_VENDOR@" ); }
-        virtual QString homePage() const override { return QStringLiteral( "@VERSION_FILE_HOMEPAGE@" ); }
+        virtual QString vendorHomePage() const override { return QStringLiteral( "@VERSION_FILE_HOMEPAGE@" ); }
         virtual QString productHomePage() const override { return QStringLiteral( "@VERSION_FILE_PRODUCT_HOMEPAGE@" ); }
         virtual QString email() const override { return QStringLiteral( "@VERSION_FILE_EMAIL@" ); }
         virtual QString copyright() const override { return QString::fromUtf8( u8R"__(@VERSION_FILE_COPYRIGHT@)__" ); }
