@@ -65,7 +65,7 @@ FUNCTION(CreateVersion)
     endforeach()
     #MESSAGE( STATUS "===========================" )
 
-    message( CHECK_START "Generating/Updating ${DESC_FILE_NAME}" )
+    message( CHECK_START "Updating ${DESC_FILE_NAME}" )
 
     set(VERSION_FILE_MAJOR_VERSION ${_CREATE_VERSION_MAJOR})
     set(VERSION_FILE_MINOR_VERSION ${_CREATE_VERSION_MINOR})
@@ -93,7 +93,9 @@ FUNCTION(CreateVersion)
     set( VERSION_FILE_GIT_VERSION ${VERSION_FILE_GIT_VERSION} PARENT_SCOPE )
     set( VERSION_FILE_PATCH_VERSION_LOW ${VERSION_FILE_PATCH_VERSION_LOW} PARENT_SCOPE )
     set( VERSION_FILE_PATCH_VERSION_HIGH ${VERSION_FILE_PATCH_VERSION_HIGH} PARENT_SCOPE )
-    InstallFile( ${TMP_OUTFILE} ${OUTFILE} REMOVE_ORIG ) # creates a dependency on TMP_OUTFILE
+    InstallFile( ${TMP_OUTFILE} ${OUTFILE} 
+        REMOVE_ORIG 
+        PREFIX _ ) # creates a dependency on TMP_OUTFILE
 
     set_property( 
         DIRECTORY ${CMAKE_SOURCE_DIR} 
@@ -101,6 +103,12 @@ FUNCTION(CreateVersion)
         PROPERTY CMAKE_CONFIGURE_DEPENDS
         ${OUTFILE}
         )
-    message(CHECK_PASS "Generated/Updated" )
+    if ( _UPDATED )
+        message(CHECK_PASS "Updated" )
+    elseif ( _UNCHANGED )
+        message(CHECK_PASS "Unchanged" )
+    else()
+        message(CHECK_FAIL "Issue updating" )
+    endif()
 
 ENDFUNCTION()

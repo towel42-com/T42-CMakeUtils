@@ -2,7 +2,7 @@
 
 FUNCTION(InstallFile inFile outFile)
     set( options REMOVE_ORIG )
-    set( oneValueArgs )
+    set( oneValueArgs PREFIX )
     set( multiValueArgs )
 
     cmake_parse_arguments( "" "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
@@ -24,12 +24,15 @@ FUNCTION(InstallFile inFile outFile)
     SET( _copy_file 0 )
     IF ( EXISTS ${outFile} )
         MESSAGE( CHECK_PASS "Exists" )
-        MESSAGE( CHECK_START "Checking if existing file is different" )
+        #configure_file( ${inFile} ${inFile} NEWLINE_STYLE UNIX )
+        #configure_file( ${outFile} ${outFile} NEWLINE_STYLE UNIX )
+
+        MESSAGE( CHECK_START "Checking if existing file ${outFile} is different from ${inFile}" )
+        MESSAGE( STATUS "${CMAKE_COMMAND} -E compare_files ${inFile} ${outFile}" )
+
         EXECUTE_PROCESS( 
-            COMMAND ${CMAKE_COMMAND} -E compare_files ${inFile} ${outFile} 
+            COMMAND ${CMAKE_COMMAND} -E compare_files --ignore-eol ${inFile} ${outFile}
             RESULT_VARIABLE filesDifferent
-            OUTPUT_QUIET 
-            ERROR_QUIET
         )
         IF ( ${filesDifferent} STREQUAL "1" )
             MESSAGE( CHECK_PASS "Different" )
@@ -42,10 +45,22 @@ FUNCTION(InstallFile inFile outFile)
         SET( _copy_file 1 )
     endif()
 
+    if ( _PREFIX )
+        set( ${_PREFIX}UPDATED 0 PARENT_SCOPE )
+        set( ${_PREFIX}UNCHANGED 0 PARENT_SCOPE)
+    endif()
+    
     if ( _copy_file )
-        MESSAGE( CHECK_START "Updating file" )
+        MESSAGE( CHECK_START "Updating file - ${outFile}" )
         configure_file( ${inFile} ${outFile} COPYONLY )
         MESSAGE( CHECK_PASS  "Updated" )
+        if ( _PREFIX )
+            set( ${_PREFIX}UPDATED 1 PARENT_SCOPE)
+        endif()
+    else()
+        if ( _PREFIX )
+            set( ${_PREFIX}UNCHANGED 1 PARENT_SCOPE)
+        endif()
     endif()
 
     if ( _REMOVE_ORIG )

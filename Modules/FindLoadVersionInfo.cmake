@@ -68,7 +68,7 @@ FUNCTION(CreateVersionInfoFile)
     #MESSAGE( STATUS "T42-CMakeUtils:            EMAIL- ${EMAIL}" )
     #MESSAGE( STATUS "T42-CMakeUtils:    TEMPLATE_FILE- ${TEMPLATE_FILE}" )
     #MESSAGE( STATUS "T42-CMakeUtils: VERSIONINFO_FILE- ${VERSIONINFO_FILE}" )
-    message( CHECK_START "Generating/Updating VersionInfo.cmake" )
+    message( CHECK_START "Updating VersionInfo.cmake" )
 
     configure_file( 
         ${TEMPLATE_FILE}
@@ -77,8 +77,16 @@ FUNCTION(CreateVersionInfoFile)
         NEWLINE_STYLE WIN32
     )
 
-    InstallFile( ${TMP_FILE} ${OUTFILE} REMOVE_ORIG ) # creates a dependency on TMP_OUTFILE
-    message( CHECK_PASS "Generated/Updated" )
+    InstallFile( ${TMP_FILE} ${OUTFILE} 
+        REMOVE_ORIG 
+        PREFIX _) # creates a dependency on TMP_OUTFILE
+    if ( _UPDATED )
+        message(CHECK_PASS "Updated" )
+    elseif ( _UNCHANGED )
+        message(CHECK_PASS "Unchanged" )
+    else()
+        message(CHECK_FAIL "Issue updating" )
+    endif()
 endfunction()
 
 function(LoadVersionInfoFile)
