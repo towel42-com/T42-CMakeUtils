@@ -5,7 +5,7 @@ function (PrintList listVar)
     endforeach()
 endfunction()
 
-function(PrintAllVariables)
+function(PrintAllVars)
     set( options "")
     set( oneValueArgs PATTERN )
     set( multiValueArgs )
