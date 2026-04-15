@@ -77,6 +77,23 @@ FUNCTION(VerifyVisualStudio PREFIX)
     STRING( REPLACE "\n" ";" installProductLineVersions ${installProductLineVersions} )
 
     execute_process( 
+        COMMAND ${VSWHERE} -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property displayName
+        OUTPUT_VARIABLE installDisplayNames
+        ERROR_QUIET
+    )
+    string( STRIP ${installDisplayNames} installDisplayNames )
+    STRING( REPLACE "\n" ";" installDisplayNamesTmp ${installDisplayNames} )
+    SET( installDisplayNames "" )
+    foreach( displayName ${installDisplayNamesTmp} )
+        string( REGEX MATCH "[A-Za-z ]+([0-9][0-9][0-9][0-9])" TMP ${displayName} )
+        if( CMAKE_MATCH_COUNT EQUAL 0 )
+            message( FATAL_ERROR "    Could not determine year from the installDisplayName '${displayName}'" )
+        endif()
+        
+        LIST( APPEND installDisplayNames ${CMAKE_MATCH_1} )
+    endforeach()
+
+    execute_process( 
         COMMAND ${VSWHERE} -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationVersion
         OUTPUT_VARIABLE installVersions
         ERROR_QUIET
@@ -88,34 +105,36 @@ FUNCTION(VerifyVisualStudio PREFIX)
     foreach( installVersion ${installVersionsTmp} )
         string( REGEX MATCH "([0-9]+)\.[0-9]+\.[0-9]+(\.[0-9]+)?" TMP ${installVersion} )
         if( CMAKE_MATCH_COUNT EQUAL 0 )
-            message( FATAL_ERROR "Could not installVersion's version from ${installVersion}" )
+            message( FATAL_ERROR "    Could not determine installVersion's version from '${installVersion}'" )
         endif()
         
         LIST( APPEND installVersions ${CMAKE_MATCH_1} )
     endforeach()
 
-    #message( STATUS " installPaths=${installPaths}" )
-    #message( STATUS " devEnvPaths=${devEnvPaths}" )
-    #message( STATUS " installProductLineVersions=${installProductLineVersions}" )
-    #message( STATUS " installVersions=${installVersions}" )
+    #message( STATUS "installPaths=${installPaths}" )
+    #message( STATUS "devEnvPaths=${devEnvPaths}" )
+    #message( STATUS "installProductLineVersions=${installProductLineVersions}" )
+    #message( STATUS "installVersions=${installVersions}" )
    
     
-    foreach( installPath devEnvPath productLineVersion installVersion IN ZIP_LISTS installPaths devEnvPaths installProductLineVersions installVersions )
+    foreach( installPath devEnvPath installVersion displayName IN ZIP_LISTS installPaths devEnvPaths installVersions installDisplayNames )
         file(TO_CMAKE_PATH ${installPath} installPath)
         file(TO_CMAKE_PATH ${devEnvPath} devEnvPath)
 
         #message( STATUS "installPath=${installPath}" )
-        #message( STATUS "devEnvPath=${installPath}" )
-        #message( STATUS "productLineVersion=${productLineVersion}" )
         #message( STATUS "installVersion=${installVersion}" )
+        #message( STATUS "displayName=${displayName}" )
+        #message( STATUS "devEnvPath=${devEnvPath}" )
 
         if ( ${devEnvPath} STREQUAL ${DEVENV} )
+            #MESSAGE( STATUS "Found DevEnv in use: ${DEVENV} - ${devEnvPath}" )
+            
             SET( ${PREFIX}VISUAL_STUDIO_FOUND TRUE PARENT_SCOPE )
             SET( ${PREFIX}VISUAL_STUDIO_INSTALLPATH ${installPath} PARENT_SCOPE )
-            SET( ${PREFIX}VISUAL_STUDIO_PRODUCTLINEVERSION ${productLineVersion} PARENT_SCOPE )
+            SET( ${PREFIX}VISUAL_STUDIO_PRODUCTLINEVERSION ${displayName} PARENT_SCOPE )
             SET( ${PREFIX}VISUAL_STUDIO_INSTALLVERSION ${installVersion} PARENT_SCOPE )
             
-            SET( generator "Visual Studio ${installVersion} ${productLineVersion}" )
+            SET( generator "Visual Studio ${installVersion} ${displayName}" )
             if ( ( ${productLineVersion} LESS 2019 ) AND ( ${VSARCH} STREQUAL "x64" ) )
                 SET( generator "${generator} Win64" )
             ENDIF()
