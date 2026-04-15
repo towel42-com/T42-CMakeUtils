@@ -20,7 +20,6 @@ MACRO(IncludeProjectSettings)
         SET( _PROJECT_BASE_FILE "Project.cmake" )
     endif()
 
-    unset( TOWEL42_QCORE_SUPPORTU )
     while( NOT ${CURR_DIR} STREQUAL ${STOP_DIR} )
         #MESSAGE( STATUS "Checking ${CURR_DIR} for ${_PROJECT_BASE_FILE}" )
 
