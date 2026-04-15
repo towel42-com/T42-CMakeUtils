@@ -65,6 +65,7 @@ FUNCTION( AddDesignerPlugin )
 
     #message( STATUS "arg_PLUGIN_DIR=${arg_PLUGIN_DIR}" )  
     install(TARGETS ${PROJECT_NAME}
+        CONFIGURATIONS Release RelWithDebInfo MinSizeRel
         RUNTIME DESTINATION "${arg_PLUGIN_DIR}"
         BUNDLE DESTINATION "${arg_PLUGIN_DIR}"
         LIBRARY DESTINATION "${arg_PLUGIN_DIR}"
