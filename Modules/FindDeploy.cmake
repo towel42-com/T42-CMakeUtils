@@ -68,11 +68,11 @@ if( TOWEL42_QCORE_SUPPORT )
         endif()
 
         set( options )
-        set( oneValueArgs INSTALL_ONLY NON_INSTALL_ONLY NO_TRANSLATIONS EXTRA_TARGETS_DIR EXTRA_TARGETS_DIR2 )
+        set( oneValueArgs INSTALL_ONLY NON_INSTALL_ONLY TRANSLATIONS EXTRA_TARGETS_DIR EXTRA_TARGETS_DIR2 )
         set( multiValueArgs EXTRA_TARGETS EXTRA_TARGETS2 )
 
         cmake_parse_arguments( "" "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
-        if ( _NO_TRANSLATIONS )
+        if ( NOT TRANSLATIONS )
             SET( NO_TRANSLATIONS_OPT "--no-translations")
         endif()
 
