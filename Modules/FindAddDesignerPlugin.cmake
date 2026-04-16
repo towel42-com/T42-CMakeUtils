@@ -47,6 +47,7 @@ FUNCTION( AddDesignerPlugin )
     set(CMAKE_AUTOUIC ON)
     find_package(Qt6 REQUIRED COMPONENTS Core Gui UiPlugin Widgets)
     qt_add_plugin(${PROJECT_NAME})
+    include_directories(${CMAKE_BINARY_DIR})
 
     target_sources(${PROJECT_NAME} PRIVATE ${arg_FILES} )
 
