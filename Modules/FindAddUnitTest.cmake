@@ -126,7 +126,7 @@ FUNCTION(TOWEL42_UNIT_TEST name file libs tgtNameVar )
     LIST( GET targets 0 targetName )
     #message( STATUS "targetName=${targetName}" )
 
-    SET( TEST_NAME Test_${targetName}_${name} ) 
+    SET( TEST_NAME Test_${targetName}-${name} ) 
     project( ${TEST_NAME} )
 
     #message( "Adding unit test ${TEST_NAME}" )
