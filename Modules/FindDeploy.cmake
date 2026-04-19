@@ -23,9 +23,7 @@
 
 find_package(DeploySystem REQUIRED)
 
-if( TOWEL42_QCORE_SUPPORT )
-    find_package(Qt6Core REQUIRED)
-
+if( Qt6Core_FOUND )
     find_program(_qtpaths_exec qtpaths REQUIRED)
     #message( STATUS "Found qtpaths=${_qtpaths_exec}")
     execute_process( 
