@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-if( TOWEL42_QCORE_SUPPORT AND Qt6_FOUND )
+if( Qt6Core_FOUND )
     FIND_PACKAGE( Deploy COMPONENTS REQUIRED)
 endif()
 
@@ -88,7 +88,7 @@ FUNCTION(TOWEL42_UNIT_TEST_RESOURCE name)
         cmake_policy(SET CMP0020 NEW)
     endif()
 
-    if( TOWEL42_QCORE_SUPPORT AND Qt6_FOUND )
+    if( Qt6Core_FOUND  )
        QT6_ADD_RESOURCES( qt_project_QRC_SRCS ${ARGN} )
        add_library(${RESOURCE_LIB_NAME} STATIC ${qt_project_QRC_SRCS})
         include_directories(${CMAKE_BINARY_DIR})
@@ -147,7 +147,7 @@ FUNCTION(TOWEL42_UNIT_TEST name file libs tgtNameVar )
     #MESSAGE( "FOLDER_NAME=${FOLDER_NAME}" )
     
     set_target_properties( ${TEST_NAME} PROPERTIES FOLDER ${FOLDER_NAME})
-    if ( TOWEL42_QCORE_SUPPORT AND Qt6Core_FOUND )
+    if ( Qt6Core_FOUND )
         SET (NEWPATH "${QT6_INSTALL_PREFIX}/bin;$ENV{PATH}" )
     else()
         SET (NEWPATH "$ENV{PATH}" )
@@ -156,7 +156,7 @@ FUNCTION(TOWEL42_UNIT_TEST name file libs tgtNameVar )
     SET_TESTS_PROPERTIES( ${TEST_NAME} PROPERTIES ENVIRONMENT "PATH=${NEWPATH}" )
 
     #MESSAGE( STATUS "${libs}" )
-    if ( TOWEL42_QCORE_SUPPORT AND Qt6Core_FOUND )
+    if ( Qt6Core_FOUND )
         STRING(FIND "${libs}" "Qt6::" pos1)
         STRING(FIND "${libs}" "Qt::" pos2)
 
