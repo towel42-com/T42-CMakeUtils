@@ -99,6 +99,13 @@ SET( project_pub_DEPS
      ${project_pub_DEPS}
      )
 
+if( Qt6Widgets_FOUND )
+    SET( project_pub_DEPS
+         Qt6::Widgets
+         ${project_pub_DEPS}
+         )
+endif()
+
 SET( project_pri_DEPS
     # insert and "global default" qt private depends here
     ${project_pri_DEPS}
