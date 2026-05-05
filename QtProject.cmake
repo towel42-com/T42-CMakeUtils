@@ -73,18 +73,23 @@ endif()
 
 QT6_ADD_RESOURCES( qtproject_QRC_SRCS ${qtproject_QRC} )
 
+SET( project_SRCS 
+    ${project_SRCS}
+    ${qtproject_SRCS}
+    )
+
 source_group("Generated Files" FILES ${qtproject_UIS_H} ${qtproject_MOC_SRCS} ${qtproject_QRC_SRCS} ${qtproject_CPPMOC_H})
 source_group("Resource Files"  FILES ${qtproject_QRC} ${qtproject_QRC_SOURCES} )
 source_group("Designer Files"  FILES ${qtproject_UIS} )
 source_group("Header Files"    FILES ${qtproject_H} )
 source_group("Source Files"    FILES ${qtproject_CPPMOC_SRCS} )
-source_group("Source Files"    FILES ${qtproject_SRCS} )
+source_group("Source Files"    FILES ${project_SRCS} )
 
 include( ${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake )
 
 SET( _PROJECT_DEPENDENCIES
     ${_PROJECT_DEPENDENCIES}
-    ${qtproject_SRCS} 
+    ${project_SRCS} 
     ${qtproject_QRC} 
     ${qtproject_QRC_SRCS} 
     ${qtproject_UIS_H} 
