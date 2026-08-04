@@ -31,26 +31,22 @@ endif()
 
 include( ${CMAKE_CURRENT_LIST_DIR}/Project.cmake )
 
-MACRO(AddT42Support whichLibVar libName)
+MACRO(AddQtComponent whichLibVar components)
     if( ${whichLibVar} )
-        find_package(Qt6 COMPONENTS ${libName} REQUIRED)
-        add_definitions( -D${whichLibVar} )        
+        foreach( component ${components} )
+            if ( NOT Qt6${component}_FOUND )
+                find_package( Qt6 COMPONENTS ${component} REQUIRED )
+                add_definitions( -D${whichLibVar} )        
+            endif()
+        endforeach()
     endif()
 endmacro()
 
 
-AddT42Support( TOWEL42_BIFSUPPORT Core )
-AddT42Support( TOWEL42_GIFSUPPORT Core )
-AddT42Support( TOWEL42_MKVUTILS Multimedia )
-AddT42Support( TOWEL42_QAXOBJECT_SUPPORT AxContainer )
-AddT42Support( TOWEL42_QCONCURRENT_SUPPORT Concurrent )
-AddT42Support( TOWEL42_QCORE_SUPPORT Core )
-AddT42Support( TOWEL42_QNETWORK_SUPPORT Network )
-AddT42Support( TOWEL42_QSQL_SUPPORT Sql )
-AddT42Support( TOWEL42_QWIDGET_SUPPORT Widgets )
-#AddT42Support( TOWEL42_QXMLPATTERNS_SUPPORT XmlPatterns )
-AddT42Support( TOWEL42_QXML_SUPPORT Xml )
-AddT42Support( TOWEL42_ZIP_SUPPORT Core )
+AddQtComponent( TOWEL42_BIFSUPPORT "Core;Widgets" )
+AddQtComponent( TOWEL42_GIFSUPPORT Core )
+AddQtComponent( TOWEL42_MKVUTILS Multimedia )
+AddQtComponent( TOWEL42_ZIP_SUPPORT Core )
 
 find_package(Qt6SrcMoc)
 
@@ -62,7 +58,11 @@ UNSET( qtproject_UIS_H )
 UNSET( qtproject_MOC_SRCS )
 UNSET( qtproject_CPPMOC_H )
 UNSET( qtproject_QRC_SRCS )
-QT6_WRAP_UI(qtproject_UIS_H ${qtproject_UIS})
+
+if( Qt6Widgets_FOUND )
+    QT6_WRAP_UI(qtproject_UIS_H ${qtproject_UIS})
+endif()
+
 if( DEFINED TOWEL42_MOC_OPTIONS )
     QT6_WRAP_CPP(qtproject_MOC_SRCS ${qtproject_H} OPTIONS ${TOWEL42_MOC_OPTIONS})
     TOWEL42_WRAP_SRCMOC(qtproject_CPPMOC_H ${qtproject_CPPMOC_SRCS} OPTIONS ${TOWEL42_MOC_OPTIONS})
@@ -70,20 +70,26 @@ else()
     QT6_WRAP_CPP(qtproject_MOC_SRCS ${qtproject_H})
     TOWEL42_WRAP_SRCMOC(qtproject_CPPMOC_H ${qtproject_CPPMOC_SRCS})
 endif()
+
 QT6_ADD_RESOURCES( qtproject_QRC_SRCS ${qtproject_QRC} )
+
+SET( project_SRCS 
+    ${project_SRCS}
+    ${qtproject_SRCS}
+    )
 
 source_group("Generated Files" FILES ${qtproject_UIS_H} ${qtproject_MOC_SRCS} ${qtproject_QRC_SRCS} ${qtproject_CPPMOC_H})
 source_group("Resource Files"  FILES ${qtproject_QRC} ${qtproject_QRC_SOURCES} )
 source_group("Designer Files"  FILES ${qtproject_UIS} )
 source_group("Header Files"    FILES ${qtproject_H} )
 source_group("Source Files"    FILES ${qtproject_CPPMOC_SRCS} )
-source_group("Source Files"    FILES ${qtproject_SRCS} )
+source_group("Source Files"    FILES ${project_SRCS} )
 
 include( ${CMAKE_CURRENT_LIST_DIR}/QtCompilerSettings.cmake )
 
 SET( _PROJECT_DEPENDENCIES
     ${_PROJECT_DEPENDENCIES}
-    ${qtproject_SRCS} 
+    ${project_SRCS} 
     ${qtproject_QRC} 
     ${qtproject_QRC_SRCS} 
     ${qtproject_UIS_H} 
@@ -97,6 +103,13 @@ SET( project_pub_DEPS
      Qt6::Core
      ${project_pub_DEPS}
      )
+
+if( Qt6Widgets_FOUND )
+    SET( project_pub_DEPS
+         Qt6::Widgets
+         ${project_pub_DEPS}
+         )
+endif()
 
 SET( project_pri_DEPS
     # insert and "global default" qt private depends here

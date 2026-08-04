@@ -14,7 +14,7 @@ MACRO(IncludeProjectSettings)
     #MESSAGE( STATUS "CURR_DIR=${CURR_DIR}" )
     #MESSAGE( STATUS "STOP_DIR=${STOP_DIR}" )
 
-    if ( TOWEL42_QCORE_SUPPORT )
+    if ( Qt6Core_FOUND )
         SET( _PROJECT_BASE_FILE "QtProject.cmake" )
     else()
         SET( _PROJECT_BASE_FILE "Project.cmake" )

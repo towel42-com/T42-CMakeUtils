@@ -15,7 +15,7 @@ FUNCTION( AddDesignerPlugin )
     endif()
     
     if ( NOT arg_NAME AND arg_BASENAME)
-        set( arg_NAME ${arg_BASENAME}DesignerPlugin )
+        set( arg_NAME ${arg_BASENAME}DP )
     endif()
 
     if ( NOT arg_FILES )
